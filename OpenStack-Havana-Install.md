@@ -9,7 +9,7 @@
 #####说明
 	安装流程参考了网上信息，个人记录，请勿使用，发生一切事情，后果自负！！！
 	
-#####安装环境设置
+#####安装环境设置（所有节点都一样）
 	1、安装OpenSSH-Server
 		apt-get install openssh-server
 	2、增加Havana的源
@@ -27,10 +27,12 @@
 	7、更新已安装的包和系统
 		apt-get upgrade
 		apt-get dist-upgrade
-	8、重启系统
+	8、更改计算机名称
+		vim /etc/hostname
+	9、重启系统
 		reboot
 		
-#####控制节点的安装
+#####所有节点安装
 	1、安装MySQL
 		apt-get install -y mysql-server python-mysqldb
 	2、配置MySQL
@@ -458,6 +460,169 @@
 	80、重启apache & memcached
 		service apache2 restart; service memcached restart
 		
+		
+#####增加计算节点
+	1、安装NTP
+		apt-get install -y ntp
+	2、配置NTP
+		#Comment the ubuntu NTP servers
+		sed -i 's/server 0.ubuntu.pool.ntp.org/#server 0.ubuntu.pool.ntp.org/g' /etc/ntp.conf
+		sed -i 's/server 1.ubuntu.pool.ntp.org/#server 1.ubuntu.pool.ntp.org/g' /etc/ntp.conf
+		sed -i 's/server 2.ubuntu.pool.ntp.org/#server 2.ubuntu.pool.ntp.org/g' /etc/ntp.conf
+		sed -i 's/server 3.ubuntu.pool.ntp.org/#server 3.ubuntu.pool.ntp.org/g' /etc/ntp.conf
+
+		#Set the compute node to follow up your conroller node
+		sed -i 's/server ntp.ubuntu.com/server 172.16.33.128/g' /etc/ntp.conf
+	3、重启ntp服务
+		service ntp restart
+	
+	4、安装vlan & 网桥工具
+		apt-get install -y vlan bridge-utils
+	5、设置 IP 转发
+		sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+		sysctl -p
+		
+	6、安装kvm检测工具
+		apt-get install -y cpu-checker
+		kvm-ok
+	7、加载 kvm_intel 内核模块
+		modprobe kvm_intel
+	8、安装 KVM
+		apt-get install -y kvm libvirt-bin pm-utils
+	9、删除默认网桥
+		virsh net-destroy default
+		virsh net-undefine default
+	10、重启服务
+		service dbus restart && service libvirt-bin restart
+	
+	11、安装 OpenVSwitch
+		apt-get install -y openvswitch-controller openvswitch-switch openvswitch-datapath-dkms
+	12、重启 OpenVSwitch
+		/etc/init.d/openvswitch-switch restart
+	13、创建网桥
+		ovs-vsctl add-br br-int
+		
+	14、安装Neutron代理
+		apt-get -y install neutron-plugin-openvswitch-agent
+	15、更新 /etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
+		#Under the database section
+		[DATABASE]
+		connection = mysql://neutronUser:neutronPass@172.16.33.128/neutron
+
+		#Under the OVS section
+		[OVS]
+		tenant_network_type = gre
+		tunnel_id_ranges = 1:1000
+		integration_bridge = br-int
+		tunnel_bridge = br-tun
+		local_ip = 172.16.33.134
+		enable_tunneling = True
+
+		#Firewall driver for realizing neutron security group function
+		[SECURITYGROUP]
+		firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+	16、更新 /etc/neutron/neutron.conf
+		rabbit_host = 172.16.33.128
+		rabbit_password = nate123
+		
+		[keystone_authtoken]
+		auth_host = 172.16.33.128
+		auth_port = 35357
+		auth_protocol = http
+		admin_tenant_name = service
+		admin_user = neutron
+		admin_password = openstacktest
+		signing_dir = /var/lib/neutron/keystone-signing
+
+		[DATABASE]
+		connection = mysql://neutronUser:neutronPass@172.16.33.128/neutron
+	17、重启服务
+		service neutron-plugin-openvswitch-agent restart
+		
+	18、安装Nova
+		apt-get install -y nova-compute-kvm
+	19、更新 etc/nova/api-paste.ini
+		[filter:authtoken]
+		paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
+		auth_host = 172.16.33.128
+		auth_port = 35357
+		auth_protocol = http
+		admin_tenant_name = service
+		admin_user = nova
+		admin_password = openstack
+		signing_dirname = /tmp/keystone-signing-nova
+		# Workaround for https://bugs.launchpad.net/nova/+bug/1154809
+		auth_version = v2.0
+	20、更新 /etc/nova/nova-compute.conf
+		[DEFAULT]
+		libvirt_type=kvm
+		compute_driver=libvirt.LibvirtDriver
+		libvirt_ovs_bridge=br-int
+		libvirt_vif_type=ethernet
+		libvirt_vif_driver=nova.virt.libvirt.vif.LibvirtHybridOVSBridgeDriver
+		libvirt_use_virtio_for_bridges=Truest
+	21、更新 /etc/nova/nova.conf
+		[DEFAULT]
+		logdir=/var/log/nova
+		state_path=/var/lib/nova
+		lock_path=/run/lock/nova
+		verbose=True
+		api_paste_config=/etc/nova/api-paste.ini
+		compute_scheduler_driver=nova.scheduler.simple.SimpleScheduler
+		rabbit_host=172.16.33.128
+		nova_url=http://172.16.33.128:8774/v1.1/
+		sql_connection=mysql://novaUser:novaPass@172.16.33.128/nova
+		root_helper=sudo nova-rootwrap /etc/nova/rootwrap.conf
+
+		# Auth
+		use_deprecated_auth=false
+		auth_strategy=keystone
+
+		# Imaging service
+		glance_api_servers=172.16.33.128:9292
+		image_service=nova.image.glance.GlanceImageService
+
+		# Vnc configuration
+		novnc_enabled=true
+		novncproxy_base_url=http://172.16.33.134:6080/vnc_auto.html
+		novncproxy_port=6080
+		vncserver_proxyclient_address=172.16.33.134
+		vncserver_listen=0.0.0.0
+
+		# Network settings
+		network_api_class=nova.network.neutronv2.api.API
+		neutron_url=http://172.16.33.128:9696
+		neutron_auth_strategy=keystone
+		neutron_admin_tenant_name=service
+		neutron_admin_username=neutron
+		neutron_admin_password=openstacktest
+		neutron_admin_auth_url=http://172.16.33.128:35357/v2.0
+		libvirt_vif_driver=nova.virt.libvirt.vif.LibvirtHybridOVSBridgeDriver
+		linuxnet_interface_driver=nova.network.linux_net.LinuxOVSInterfaceDriver
+		#If you want Neutron + Nova Security groups
+		firewall_driver=nova.virt.firewall.NoopFirewallDriver
+		security_group_api=neutron
+		#If you want Nova Security groups only, comment the two lines above and uncomment line -1-.
+		#-1-firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver
+
+		#Metadata
+		service_neutron_metadata_proxy = True
+		neutron_metadata_proxy_shared_secret = helloOpenStack
+
+		# Compute #
+		compute_driver=libvirt.LibvirtDriver
+
+		# Cinder #
+		volume_api_class=nova.volume.cinder.API
+		osapi_volume_listen_port=5900
+		cinder_catalog_info=volume:cinder:internalURL
+		
+	22、重启服务
+		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i restart; cd;done
+	23、验证服务是否运行
+		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i status; cd;done
+	24、检查服务列表 
+		nova-manage service list
 	
 		
 		
