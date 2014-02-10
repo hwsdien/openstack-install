@@ -1,4 +1,4 @@
-####OpenStack Havana 双节点的安装配置记录
+####OpenStack Havana 双节点的安装配置记录（未完待续）
 
 #####Author
 	nate.yu <nate_yhz@outlook.com>
