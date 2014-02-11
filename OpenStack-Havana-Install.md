@@ -251,7 +251,7 @@
 		l3_agent_manager = neutron.agent.l3_agent.L3NATAgentWithStateReport
 		root_helper = sudo neutron-rootwrap /etc/neutron/rootwrap.conf
 		interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
-	42、更新 /etc/neutron/dhcp_agent.ini
+	42、更新 /etc/neutron/dhcp_agent.ini(增加了dnsmasq_config_file)
 		[DEFAULT]
 		interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
 		dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
@@ -264,6 +264,10 @@
 		dhcp_agent_manager = neutron.agent.dhcp_agent.DhcpAgentWithStateReport
 		root_helper = sudo neutron-rootwrap /etc/neutron/rootwrap.conf
 		state_path = /var/lib/neutron
+		dnsmasq_config_file=/etc/neutron/dnsmasq-neutron.conf
+		
+		dnsmasq-neutron.conf的内容如下：
+		dhcp-option-force=26,1400
 	43、删除sqlite文件
 		rm -rf /var/lib/neutron/neutron.sqlite
 	44、重启服务
@@ -570,6 +574,7 @@
 		api_paste_config=/etc/nova/api-paste.ini
 		compute_scheduler_driver=nova.scheduler.simple.SimpleScheduler
 		rabbit_host=172.16.33.128
+		rabbit_password=nate123
 		nova_url=http://172.16.33.128:8774/v1.1/
 		sql_connection=mysql://novaUser:novaPass@172.16.33.128/nova
 		root_helper=sudo nova-rootwrap /etc/nova/rootwrap.conf
