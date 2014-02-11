@@ -628,7 +628,36 @@
 		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i status; cd;done
 	24、检查服务列表 
 		nova-manage service list
-	
+		
+		
+#####更新OpenVSwitch (未验证，勿安装)
+	1、下载最新的版本 & 解压
+		wget http://openvswitch.org/releases/openvswitch-1.9.3.tar.gz
+		tar zxvf ./openvswitch-1.9.3.tar.gz
+	2、安装相应的软件
+		apt-get install -y git python-simplejson python-qt4 python-twisted-conch automake autoconf gcc uml-utilities libtool build-essential git pkg-config libssl-dev
+	3、configure
+		./boot.sh && ./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --libdir=/usr/lib  --with-linux=/lib/modules/`uname -r`/build
+	4、修改ovs-lib
+		mv utilities/ovs-lib utilities/ovs-lib.bak
+	5、编译安装
+		make && make install
+	6、复制文件
+		cp ./utilities/ovs-lib /usr/share/openvswitch/scripts/
+	7、加载内核模块
+		
+		rmmod bridge >/dev/null
+		rmmod openvswitch >/dev/null 2>&1
+		cp datapath/linux/openvswitch.ko /lib/modules/`uname -r`/updates/dkms/
+		cp datapath/linux/brcompat.ko /lib/modules/`uname -r`/updates/dkms/
+
+		insmod /lib/modules/`uname -r`/updates/dkms/openvswitch.ko || print "insmod failed, check dmesg" && exit
+		insmod /lib/modules/`uname -r`/updates/dkms/brcompat.ko || print "insmod failed, check dmesg" && exit
+	8、开启brcompat
+		vim /etc/default/openvswitch-switch
+	9、重启 openvswitch
+		service openvswitch-switch restart
+		
 		
 		
 		
