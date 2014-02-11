@@ -564,7 +564,7 @@
 		libvirt_ovs_bridge=br-int
 		libvirt_vif_type=ethernet
 		libvirt_vif_driver=nova.virt.libvirt.vif.LibvirtHybridOVSBridgeDriver
-		libvirt_use_virtio_for_bridges=Truest
+		libvirt_use_virtio_for_bridges=True
 	21、更新 /etc/nova/nova.conf
 		[DEFAULT]
 		logdir=/var/log/nova
