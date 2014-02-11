@@ -589,7 +589,7 @@
 
 		# Vnc configuration
 		novnc_enabled=true
-		novncproxy_base_url=http://172.16.33.134:6080/vnc_auto.html
+		novncproxy_base_url=http://172.16.33.133:6080/vnc_auto.html
 		novncproxy_port=6080
 		vncserver_proxyclient_address=172.16.33.134
 		vncserver_listen=0.0.0.0
