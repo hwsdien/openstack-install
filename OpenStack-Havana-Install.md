@@ -338,6 +338,7 @@
 		nova_url=http://127.0.0.1:8774/v1.1/
 		sql_connection=mysql://novaUser:novaPass@127.0.0.1/nova
 		root_helper=sudo nova-rootwrap /etc/nova/rootwrap.conf
+		cpu_allocation_ratio=16.0
 
 		# Auth
 		use_deprecated_auth=false
@@ -578,6 +579,7 @@
 		nova_url=http://172.16.33.128:8774/v1.1/
 		sql_connection=mysql://novaUser:novaPass@172.16.33.128/nova
 		root_helper=sudo nova-rootwrap /etc/nova/rootwrap.conf
+		cpu_allocation_ratio=16.0
 
 		# Auth
 		use_deprecated_auth=false
