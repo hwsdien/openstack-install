@@ -26,7 +26,7 @@
 		sed -i 's/default="0/default="2/g' /boot/grub/grub.cfg
 	7、更新已安装的包和系统
 		apt-get upgrade
-		apt-get dist-upgrade
+		apt-get dist-upgrade(视情况)
 	8、更改计算机名称
 		vim /etc/hostname
 	9、重启系统
@@ -38,6 +38,8 @@
 	2、配置MySQL
 		sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mysql/my.cnf
 	3、删除所有空用户
+		mysql -uroot -p
+		use mysql;
 		delete from user where user='';
 		flush privileges;
 	4、创建数据库和用户
@@ -181,6 +183,7 @@
 	36、验证服务是否运行
 		cd /etc/init.d/; for i in $( ls neutron-* ); do sudo service $i status; cd; done
 	37、更新 /etc/neutron/api-paste.ini
+		vim /etc/neutron/api-paste.ini
 		[filter:authtoken]
 		paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
 		auth_host = 127.0.0.1
@@ -190,6 +193,7 @@
 		admin_user = neutron
 		admin_password = openstacktest
 	38、更新 /etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
+		vim /etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
 		#Under the database section
 		[DATABASE]
 		connection=mysql://neutronUser:neutronPass@127.0.0.1/neutron
@@ -207,6 +211,7 @@
 		[SECURITYGROUP]
 		firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
 	39、更新 /etc/neutron/metadata_agent.ini
+		vim /etc/neutron/metadata_agent.ini
 		# The Neutron user information for accessing the Neutron API.
 		auth_url = http://127.0.0.1:35357/v2.0
 		auth_region = RegionOne
@@ -223,6 +228,7 @@
 
 		metadata_proxy_shared_secret = helloOpenStack
 	40、更新 /etc/neutron/neutron.conf
+		vim /etc/neutron/neutron.conf
 		#RabbitMQ IP
 		rabbit_host = 127.0.0.1
 		rabbit_password = nate123
@@ -239,6 +245,7 @@
 		[DATABASE]
 		connection = mysql://neutronUser:neutronPass@127.0.0.1/neutron
 	41、更新 /etc/neutron/l3_agent.ini
+		vim /etc/neutron/l3_agent.ini
 		[DEFAULT]
 		interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
 		use_namespaces = True
@@ -252,6 +259,7 @@
 		root_helper = sudo neutron-rootwrap /etc/neutron/rootwrap.conf
 		interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
 	42、更新 /etc/neutron/dhcp_agent.ini(增加了dnsmasq_config_file)
+		vim /etc/neutron/dhcp_agent.ini
 		[DEFAULT]
 		interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
 		dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
@@ -287,6 +295,7 @@
 	49、安装KVM
 		apt-get install -y kvm libvirt-bin pm-utils
 	50、更新 /etc/libvirt/qemu.conf
+		
 		cgroup_device_acl = [
 		"/dev/null", "/dev/full", "/dev/zero",
 		"/dev/random", "/dev/urandom",
@@ -314,6 +323,7 @@
 	58、验证服务是否运行
 		cd /etc/init.d/; for i in $( ls nova-* ); do service $i status; cd; done
 	59、更新 /etc/nova/api-paste.ini
+		vim /etc/nova/api-paste.ini
 		[filter:authtoken]
 		paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
 		auth_host = 127.0.0.1
@@ -326,6 +336,7 @@
 		# Workaround for https://bugs.launchpad.net/nova/+bug/1154809
 		auth_version = v2.0
 	60、更新 /etc/nova/nova.conf
+		vim /etc/nova/nova.conf
 		[DEFAULT]
 		logdir=/var/log/nova
 		state_path=/var/lib/nova
@@ -339,6 +350,7 @@
 		sql_connection=mysql://novaUser:novaPass@127.0.0.1/nova
 		root_helper=sudo nova-rootwrap /etc/nova/rootwrap.conf
 		cpu_allocation_ratio=16.0
+		libvirt_inject_password=true #注入密码
 
 		# Auth
 		use_deprecated_auth=false
@@ -386,6 +398,7 @@
 		osapi_volume_listen_port=5900
 		cinder_catalog_info=volume:cinder:internalURL
 	62、更新 /etc/nova/nova-compute.conf
+		vim /etc/nova/nova-compute.conf
 		[DEFAULT]
 		libvirt_type=kvm
 		libvirt_ovs_bridge=br-int
@@ -411,6 +424,7 @@
 		service iscsitarget start
 		service open-iscsi start
 	71、更新 /etc/cinder/api-paste.ini
+		vim /etc/cinder/api-paste.ini
 		[filter:authtoken]
 		paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
 		service_protocol = http
@@ -423,6 +437,7 @@
 		admin_user = cinder
 		admin_password = openstacktest
 	72、更新 /etc/cinder/cinder.conf
+		vim /etc/cinder/cinder.conf
 		[DEFAULT]
 		rootwrap_config=/etc/cinder/rootwrap.conf
 		sql_connection = mysql://cinderUser:cinderPass@127.0.0.1/cinder
