@@ -241,6 +241,9 @@
 		admin_user = neutron
 		admin_password = openstacktest
 		signing_dir = /var/lib/neutron/keystone-signing
+		
+		[quotas]
+		quota_driver=neutron.db.quota_db.DbQuotaDriver
 
 		[DATABASE]
 		connection = mysql://neutronUser:neutronPass@127.0.0.1/neutron
