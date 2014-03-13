@@ -355,6 +355,7 @@
 		root_helper=sudo nova-rootwrap /etc/nova/rootwrap.conf
 		cpu_allocation_ratio=16.0
 		libvirt_inject_password=true #inject password
+		allow_resize_to_same_host=true #for migrate when just one compute node
 
 		# Auth
 		use_deprecated_auth=false
