@@ -354,7 +354,7 @@
 		sql_connection=mysql://novaUser:novaPass@127.0.0.1/nova
 		root_helper=sudo nova-rootwrap /etc/nova/rootwrap.conf
 		cpu_allocation_ratio=16.0
-		libvirt_inject_password=true #注入密码
+		libvirt_inject_password=true #inject password
 
 		# Auth
 		use_deprecated_auth=false
