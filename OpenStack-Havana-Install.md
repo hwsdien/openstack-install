@@ -29,6 +29,7 @@
 		apt-get dist-upgrade(视情况)
 	8、更改计算机名称
 		vim /etc/hostname
+		vim /etc/hosts
 	9、重启系统
 		reboot
 		
