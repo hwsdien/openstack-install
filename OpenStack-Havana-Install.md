@@ -354,8 +354,12 @@
 		sql_connection=mysql://novaUser:novaPass@127.0.0.1/nova
 		root_helper=sudo nova-rootwrap /etc/nova/rootwrap.conf
 		cpu_allocation_ratio=16.0
-		libvirt_inject_password=true #inject password
-		allow_resize_to_same_host=true #for migrate when just one compute node
+		
+		#inject password
+		libvirt_inject_password=true
+		
+		#for migrate when just one compute node
+		allow_resize_to_same_host=true
 
 		# Auth
 		use_deprecated_auth=false
