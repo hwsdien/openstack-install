@@ -164,7 +164,7 @@
 		glance image-list
 		
 	30、安装Nova
-	apt-get install nova-novncproxy novnc nova-api nova-ajax-console-proxy nova-cert nova-conductor nova-consoleauth nova-doc nova-scheduler nova-compute-kvm python-guestfs nova-common nova-network
+		apt-get install nova-novncproxy novnc nova-api nova-ajax-console-proxy nova-cert nova-conductor nova-consoleauth nova-doc nova-scheduler nova-compute-kvm python-guestfs nova-common nova-network
 	31、验证服务是否运行
 		cd /etc/init.d/; for i in $( ls nova-* ); do service $i status; cd; done
 	32、更新 /etc/nova/api-paste.ini
@@ -254,10 +254,71 @@
 		nova-manage db sync
 	38、服务显示
 		nova-manage service list
+		
+	39、安装Cinder
+		apt-get install -y cinder-api cinder-scheduler cinder-volume iscsitarget open-iscsi iscsitarget-dkms
+	40、配置iscsi服务
+		sed -i 's/false/true/g' /etc/default/iscsitarget
+	41、启动服务
+		service iscsitarget start
+		service open-iscsi start
+	42、更新 /etc/cinder/api-paste.ini
+		vim /etc/cinder/api-paste.ini
+		[filter:authtoken]
+		paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
+		service_protocol = http
+		service_host = 172.16.33.128
+		service_port = 5000
+		auth_host = 127.0.0.1
+		auth_port = 35357
+		auth_protocol = http
+		admin_tenant_name = service
+		admin_user = cinder
+		admin_password = openstacktest
+	43、更新 /etc/cinder/cinder.conf
+		vim /etc/cinder/cinder.conf
+		[DEFAULT]
+		rootwrap_config=/etc/cinder/rootwrap.conf
+		sql_connection = mysql://cinderUser:cinderPass@127.0.0.1/cinder
+		api_paste_config = /etc/cinder/api-paste.ini
+		iscsi_helper=ietadm
+		volume_name_template = volume-%s
+		volume_group = cinder-volumes
+		verbose = True
+		auth_strategy = keystone
+		#osapi_volume_listen_port=5900
+	44、删除sqlite文件
+		rm -rf /var/lib/cinder/cinder.sqlite
+	45、同步数据
+		cinder-manage db sync
+	46、创建硬盘
+		dd if=/dev/zero of=cinder-volumes bs=1 count=0 seek=2G
+		losetup /dev/loop2 cinder-volumes
+		fdisk /dev/loop2
+		#Type in the followings:
+		n
+		p
+		1
+		ENTER
+		ENTER
+		t
+		8e
+		w
+		
+		pvcreate /dev/loop2
+		vgcreate cinder-volumes /dev/loop2
+	47、重启相关服务
+		cd /etc/init.d/; for i in $( ls cinder-* ); do sudo service $i restart; cd /root/; done
+	48、验证服务是否在运行
+		cd /etc/init.d/; for i in $( ls cinder-* ); do sudo service $i status; cd /root/; done
 
-
-	
-	
+	49、安装Dashboard
+		apt-get install memcached libapache2-mod-wsgi openstack-dashboard
+	50、删除ubuntu主题
+		apt-get remove --purge openstack-dashboard-ubuntu-theme
+	51、开启服务
+		service apache2 restart
+		service memcached restart
 	
 	
 	
