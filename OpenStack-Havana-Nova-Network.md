@@ -120,6 +120,48 @@
 		keystone token-get
 	
 	
+	21、安装Glance
+		apt-get install -y glance
+	22、验证服务是否运行
+		service glance-api status
+		service glance-registry status
+	23、更新ini文件
+		vim /etc/glance/glance-api-paste.ini
+		vim /etc/glance/glance-registry-paste.ini
+		[filter:authtoken]
+		paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
+		auth_host = 127.0.0.1
+		auth_port = 35357
+		auth_protocol = http
+		admin_tenant_name = service
+		admin_user = glance
+		admin_password = openstacktest	
+	24、更新conf文件
+		vim /etc/glance/glance-api.conf
+		vim /etc/glance/glance-registry.conf
+		[DEFAULT]
+		sql_connection = mysql://glanceUser:glancePass@127.0.0.1/glance
+
+		[keystone_authtoken]
+		auth_host = 127.0.0.1
+		auth_port = 35357
+		auth_protocol = http
+		admin_tenant_name = service
+		admin_user = glance
+		admin_password = openstacktest
+
+		[paste_deploy]
+		flavor = keystone
+	25、删除sqlite文件
+		rm -rf /var/lib/glance/glance.sqlite
+	26、重启服务
+		service glance-api restart; service glance-registry restart
+	27、同步数据
+		glance-manage db_sync
+	28、测试(可wget下来再 < 导入)
+		glance image-create --name myFirstImage --is-public true --container-format bare --disk-format qcow2 --location https://launchpad.net/cirros/trunk/0.3.0/+download/cirros-0.3.0-x86_64-disk.img
+	29、列出所有映像
+		glance image-list
 	
 	
 	
