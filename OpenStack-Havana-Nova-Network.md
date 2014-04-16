@@ -162,8 +162,100 @@
 		glance image-create --name myFirstImage --is-public true --container-format bare --disk-format qcow2 --location https://launchpad.net/cirros/trunk/0.3.0/+download/cirros-0.3.0-x86_64-disk.img
 	29、列出所有映像
 		glance image-list
-	
-	
+		
+	30、安装Nova
+	apt-get install nova-novncproxy novnc nova-api nova-ajax-console-proxy nova-cert nova-conductor nova-consoleauth nova-doc nova-scheduler nova-compute-kvm python-guestfs nova-common nova-network
+	31、验证服务是否运行
+		cd /etc/init.d/; for i in $( ls nova-* ); do service $i status; cd; done
+	32、更新 /etc/nova/api-paste.ini
+		vim /etc/nova/api-paste.ini
+		[filter:authtoken]
+		paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
+		auth_host = 127.0.0.1
+		auth_port = 35357
+		auth_protocol = http
+		admin_tenant_name = service
+		admin_user = nova
+		admin_password = openstacktest
+		signing_dirname = /tmp/keystone-signing-nova
+		# Workaround for https://bugs.launchpad.net/nova/+bug/1154809
+		auth_version = v2.0
+	33、更新 /etc/nova/nova.conf
+		vim /etc/nova/nova.conf
+		[DEFAULT]
+		logdir=/var/log/nova
+		state_path=/var/lib/nova
+		lock_path=/run/lock/nova
+		verbose=True
+		api_paste_config=/etc/nova/api-paste.ini
+		compute_scheduler_driver=nova.scheduler.simple.SimpleScheduler
+		rabbit_host=127.0.0.1
+		rabbit_password=123123
+		nova_url=http://127.0.0.1:8774/v1.1/
+		sql_connection=mysql://novaUser:novaPass@127.0.0.1/nova
+		root_helper=sudo nova-rootwrap /etc/nova/rootwrap.conf
+		cpu_allocation_ratio=16.0
+
+		#inject password
+		libvirt_inject_password=true
+
+		#for migrate when just one compute node
+		allow_resize_to_same_host=true
+
+		# Auth
+		use_deprecated_auth=false
+		auth_strategy=keystone
+
+		# Imaging service
+		glance_api_servers=127.0.0.1:9292
+		image_service=nova.image.glance.GlanceImageService
+
+		# Vnc configuration
+		novnc_enabled=true
+		novncproxy_base_url=http://10.211.55.4:6080/vnc_auto.html
+		novncproxy_port=6080
+		vncserver_proxyclient_address=127.0.0.1
+		vncserver_listen=0.0.0.0
+		
+		# Network settings
+		dhcpbridge_flagfile=/etc/nova/nova.conf
+		dhcpbridge=/usr/bin/nova-dhcpbridge
+		firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver
+		network_manager=nova.network.manager.FlatDHCPManager
+		public_interface=eth0
+		flat_interface=eth0
+		flat_network_bridge=br100
+		flat_injected=False
+		force_dhcp_release=true
+		fixed_range=192.168.100.0/24
+		flat_network_dhcp_start=192.168.100.2
+		floating_range=10.211.55.0/24
+
+		network_size=1
+		multi_host=true
+		enabled_apis=metadata
+
+
+		# Compute #
+		compute_driver=libvirt.LibvirtDriver
+
+		# Cinder #
+		volume_api_class=nova.volume.cinder.API
+		osapi_volume_listen_port=5900
+		cinder_catalog_info=volume:cinder:internalURL
+		
+	34、重启相关的服务
+		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i restart; cd /root/;done
+	35、验证服务是否运行
+		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i status; cd /root/;done
+	36、删除sqlite文件
+		rm -rf /var/lib/nova/nova.sqlite
+	37、同步数据
+		nova-manage db sync
+	38、服务显示
+		nova-manage service list
+
+
 	
 	
 	
