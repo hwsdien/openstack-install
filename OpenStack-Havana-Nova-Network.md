@@ -70,10 +70,6 @@
 		CREATE DATABASE glance;
 		GRANT ALL ON glance.* TO 'glanceUser'@'%' IDENTIFIED BY 'glancePass';
 
-		#Neutron
-		CREATE DATABASE neutron;
-		GRANT ALL ON neutron.* TO 'neutronUser'@'%' IDENTIFIED BY 'neutronPass';
-
 		#Nova
 		CREATE DATABASE nova;
 		GRANT ALL ON nova.* TO 'novaUser'@'%' IDENTIFIED BY 'novaPass';
@@ -183,18 +179,25 @@
 	33、更新 /etc/nova/nova.conf
 		vim /etc/nova/nova.conf
 		[DEFAULT]
+		[DEFAULT]
 		logdir=/var/log/nova
 		state_path=/var/lib/nova
 		lock_path=/run/lock/nova
 		verbose=True
+
 		api_paste_config=/etc/nova/api-paste.ini
 		compute_scheduler_driver=nova.scheduler.simple.SimpleScheduler
 		rabbit_host=127.0.0.1
 		rabbit_password=123123
+
 		nova_url=http://127.0.0.1:8774/v1.1/
 		sql_connection=mysql://novaUser:novaPass@127.0.0.1/nova
 		root_helper=sudo nova-rootwrap /etc/nova/rootwrap.conf
+
 		cpu_allocation_ratio=16.0
+
+		osapi_compute_listen = 0.0.0.0
+		osapi_compute_listen_port = 8774
 
 		#inject password
 		libvirt_inject_password=true
@@ -216,7 +219,7 @@
 		novncproxy_port=6080
 		vncserver_proxyclient_address=127.0.0.1
 		vncserver_listen=0.0.0.0
-		
+
 		# Network settings
 		dhcpbridge_flagfile=/etc/nova/nova.conf
 		dhcpbridge=/usr/bin/nova-dhcpbridge
@@ -227,13 +230,18 @@
 		flat_network_bridge=br100
 		flat_injected=False
 		force_dhcp_release=true
+
 		fixed_range=192.168.100.0/24
 		flat_network_dhcp_start=192.168.100.2
 		floating_range=10.211.55.0/24
 
-		network_size=1
-		multi_host=true
-		enabled_apis=metadata
+		allow_same_net_traffic=False
+		send_arp_for_ha=True
+		share_dhcp_address=True
+
+		network_size=256
+		multi_host=False
+		#enabled_apis=metadata
 
 
 		# Compute #
@@ -319,6 +327,15 @@
 	51、开启服务
 		service apache2 restart
 		service memcached restart
+		
+	52、删除virbr0
+		ifconfig virbr0 down
+		brctl delbr virbr0
+		virsh net-destroy default
+		virsh net-undefine default
+		
+		
+	
 	
 	
 	
