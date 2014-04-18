@@ -334,6 +334,15 @@
 		virsh net-destroy default
 		virsh net-undefine default
 		
+#####相关错误
+	qemu-kvm: wrong dependency on librdb1 (kvm: symbol lookup error: kvm: undefined symbol: rbd_aio_discard)
+	解决办法: apt-get install librbd1
+	
+	ConnectionFailed: Connection to neutron failed: Maximum attempts reached
+	解决办法: 
+		keystone 删除 neutron 相关的 user & service
+		keystone catalog 查下有没有
+		浏览器清空cookies重新登录
 		
 	
 	
