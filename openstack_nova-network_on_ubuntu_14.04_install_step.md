@@ -1,5 +1,12 @@
 #####Openstack nova-network on Ubuntu 14.04 Install Step
 
+*	安装NTP
+
+		apt-get install -y ntp
+		
+		ntpdate 210.72.145.44
+
+
 *	安装MySQL
 
 		apt-get install -y mysql-server python-mysqldb
