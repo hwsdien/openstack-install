@@ -69,8 +69,6 @@
 		vim /etc/glance/glance-api-paste.ini
     	vim /etc/glance/glance-registry-paste.ini
     	
-    	rabbit_password = nate123
-    	
     	[filter:authtoken]
     	paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
     	auth_host = 127.0.0.1
@@ -82,6 +80,9 @@
     	
     	vim /etc/glance/glance-api.conf
     	vim /etc/glance/glance-registry.conf
+    	
+    	rabbit_password = nate123
+    	
     	[DEFAULT]
     	sql_connection = mysql://glanceUser:glancePass@127.0.0.1/glance
 
