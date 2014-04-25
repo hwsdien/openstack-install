@@ -81,10 +81,12 @@
     	vim /etc/glance/glance-api.conf
     	vim /etc/glance/glance-registry.conf
     	
+    	[DEFAULT]
     	rabbit_password = nate123
     	
-    	[DEFAULT]
-    	sql_connection = mysql://glanceUser:glancePass@127.0.0.1/glance
+    	[database]
+    	#sqlite_db = /var/lib/glance/glance.sqlite
+    	connection = mysql://glanceUser:glancePass@127.0.0.1/glance
 
     	[keystone_authtoken]
     	auth_host = 127.0.0.1
