@@ -62,6 +62,47 @@
     	keystone user-list
     	keystone token-get
 		
+*	安装Glance
+
+		apt-get install -y glance glance-api glance-common glance-registry python-glance python-glanceclient
+		
+		vim /etc/glance/glance-api-paste.ini
+    	vim /etc/glance/glance-registry-paste.ini
+    	[filter:authtoken]
+    	paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
+    	auth_host = 127.0.0.1
+    	auth_port = 35357
+   		auth_protocol = http
+    	admin_tenant_name = service
+    	admin_user = glance
+    	admin_password = openstacktest  
+    	
+    	vim /etc/glance/glance-api.conf
+    	vim /etc/glance/glance-registry.conf
+    	[DEFAULT]
+    	sql_connection = mysql://glanceUser:glancePass@127.0.0.1/glance
+
+    	[keystone_authtoken]
+    	auth_host = 127.0.0.1
+    	auth_port = 35357
+    	auth_protocol = http
+    	admin_tenant_name = service
+    	admin_user = glance
+    	admin_password = openstacktest
+
+    	[paste_deploy]
+    	flavor = keystone
+    	
+    	rm -rf /var/lib/glance/glance.sqlite
+    	
+    	service glance-api restart; service glance-registry restart
+    	
+    	glance-manage db_sync
+    	
+    	glance image-create --name myFirstImage --is-public true --container-format bare --disk-format qcow2 --location https://launchpad.net/cirros/trunk/0.3.0/+download/cirros-0.3.0-x86_64-disk.img
+    	
+    	glance image-list
+
 
 
 		
