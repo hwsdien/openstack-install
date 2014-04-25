@@ -36,6 +36,31 @@
 		
 *	安装Keystone
 
+		apt-get install -y keystone python-keystone python-keystoneclient
+		
+		vim /etc/keystone/keystone.conf
+    	connection = mysql://keystoneUser:keystonePass@127.0.0.1/keystone
+    	
+    	rm -rf /var/lib/keystone/keystone.db
+    	
+    	service keystone restart
+    	
+    	keystone-manage db_sync
+    	
+    	wget https://raw2.github.com/Ch00k/OpenStack-Havana-Install-Guide/master/keystone_basic.sh
+    	wget https://raw2.github.com/Ch00k/OpenStack-Havana-Install-Guide/master/keystone_endpoints_basic.sh
+    	chmod a+x ./keystone_*.sh
+    	./keystone_basic.sh
+    	./keystone_endpoints_basic.sh
+    	
+    	vim ./creds
+    	export OS_TENANT_NAME=admin
+    	export OS_USERNAME=admin
+    	export OS_PASSWORD=openstacktest
+    	export OS_AUTH_URL="http://127.0.0.1:5000/v2.0/"
+    	
+    	keystone user-list
+    	keystone token-get
 		
 
 
