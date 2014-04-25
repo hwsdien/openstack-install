@@ -79,8 +79,7 @@
     	admin_password = openstacktest  
     	
     	vim /etc/glance/glance-api.conf
-    	vim /etc/glance/glance-registry.conf
-    	
+    	  	
     	[DEFAULT]
     	rabbit_password = nate123
     	
@@ -97,7 +96,24 @@
     	admin_password = openstacktest
 
     	[paste_deploy]
-    	flavor = keystone
+    	flavor = keystone    	    	
+    	
+    	vim /etc/glance/glance-registry.conf
+    	
+    	[database]
+    	#sqlite_db = /var/lib/glance/glance.sqlite
+    	connection = mysql://glanceUser:glancePass@127.0.0.1/glance
+
+    	[keystone_authtoken]
+    	auth_host = 127.0.0.1
+    	auth_port = 35357
+    	auth_protocol = http
+    	admin_tenant_name = service
+    	admin_user = glance
+    	admin_password = openstacktest
+
+    	[paste_deploy]
+    	flavor = keystone    	    	
     	
     	rm -rf /var/lib/glance/glance.sqlite
     	
