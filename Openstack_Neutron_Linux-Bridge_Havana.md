@@ -27,4 +27,51 @@
 		vim /etc/hosts
 	9、重启系统
 		reboot
+		
+		
+#####安装
+*	安装MySQL
+
+		apt-get install -y mysql-server python-mysqldb
+*	配置MySQL
+
+		sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mysql/my.cnf
+*	删除所有空用户
+
+		mysql -uroot -p
+		use mysql;
+		delete from user where user='';
+		flush privileges;
+*	创建数据库和用户
+
+		#Keystone
+		CREATE DATABASE keystone;
+		GRANT ALL ON keystone.* TO 'keystoneUser'@'%' IDENTIFIED BY 'keystonePass';
+
+		#Glance
+		CREATE DATABASE glance;
+		GRANT ALL ON glance.* TO 'glanceUser'@'%' IDENTIFIED BY 'glancePass';
+
+		#Neutron
+		CREATE DATABASE neutron;
+		GRANT ALL ON neutron.* TO 'neutronUser'@'%' IDENTIFIED BY 'neutronPass';
+
+		#Nova
+		CREATE DATABASE nova;
+		GRANT ALL ON nova.* TO 'novaUser'@'%' IDENTIFIED BY 'novaPass';
+
+		#Cinder
+		CREATE DATABASE cinder;
+		GRANT ALL ON cinder.* TO 'cinderUser'@'%' IDENTIFIED BY 'cinderPass';
+		
+		flush privileges;
+		quit;
+*	重启MySQL
+
+		service mysql restart
+
+
+
+
+
 	
