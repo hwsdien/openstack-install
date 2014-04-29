@@ -86,6 +86,48 @@
 
 		sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
 		sysctl -p
+*	安装Keystone
+
+		apt-get install -y keystone
+*	修改Keystone的配置文件
+
+		vim /etc/keystone/keystone.conf
+		connection = mysql://keystoneUser:keystonePass@127.0.0.1/keystone
+*	删除Sqlite db文件
+
+		rm -rf /var/lib/keystone/keystone.db
+*	重启Keystone 
+
+		service keystone restart
+*	同步数据
+
+		keystone-manage db_sync
+*	增加初始化数据(需修改脚本文件)
+
+		wget https://raw2.github.com/Ch00k/OpenStack-Havana-Install-Guide/master/keystone_basic.sh
+		wget https://raw2.github.com/Ch00k/OpenStack-Havana-Install-Guide/master/keystone_endpoints_basic.sh
+		chmod a+x ./keystone_*.sh
+		./keystone_basic.sh
+		./keystone_endpoints_basic.sh
+*	创建设置环境变量文件
+
+		vim ./creds
+		export OS_TENANT_NAME=admin
+		export OS_USERNAME=admin
+		export OS_PASSWORD=openstacktest
+		export OS_AUTH_URL="http://127.0.0.1:5000/v2.0/"
+*	测试keystone
+
+		keystone user-list
+		keystone token-get
+
+
+
+
+
+
+
+
 
 
 
