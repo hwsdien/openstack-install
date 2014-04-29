@@ -304,6 +304,127 @@
 *	检测服务是否运行
 
 		service dbus status && service libvirt-bin status
+*	安装Nova
+
+		apt-get install -y nova-api nova-cert novnc nova-consoleauth nova-scheduler nova-novncproxy nova-doc nova-conductor nova-compute-kvm
+		
+*	验证服务是否运行
+
+		cd /etc/init.d/; for i in $( ls nova-* ); do service $i status; cd; done
+*	更新 /etc/nova/api-paste.ini
+
+		vim /etc/nova/api-paste.ini
+		[filter:authtoken]
+		paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
+		auth_host = 127.0.0.1
+		auth_port = 35357
+		auth_protocol = http
+		admin_tenant_name = service
+		admin_user = nova
+		admin_password = openstacktest
+		signing_dirname = /tmp/keystone-signing-nova
+		# Workaround for https://bugs.launchpad.net/nova/+bug/1154809
+		auth_version = v2.0
+*	更新 /etc/nova/nova.conf
+
+		vim /etc/nova/nova.conf
+		[DEFAULT]
+		logdir=/var/log/nova
+		state_path=/var/lib/nova
+		lock_path=/run/lock/nova
+		verbose=True
+		api_paste_config=/etc/nova/api-paste.ini
+		compute_scheduler_driver=nova.scheduler.simple.SimpleScheduler
+		rabbit_host=127.0.0.1
+		rabbit_password=nate123
+		nova_url=http://127.0.0.1:8774/v1.1/
+		sql_connection=mysql://novaUser:novaPass@127.0.0.1/nova
+		root_helper=sudo nova-rootwrap /etc/nova/rootwrap.conf
+		cpu_allocation_ratio=16.0
+		
+		#inject password
+		libvirt_inject_password=true
+		
+		#for migrate when just one compute node
+		allow_resize_to_same_host=true
+
+		# Auth
+		use_deprecated_auth=false
+		auth_strategy=keystone
+
+		# Imaging service
+		glance_api_servers=127.0.0.1:9292
+		image_service=nova.image.glance.GlanceImageService
+
+		# Vnc configuration
+		novnc_enabled=true
+		novncproxy_base_url=http://127.0.0.1:6080/vnc_auto.html
+		novncproxy_port=6080
+		vncserver_proxyclient_address=127.0.0.1
+		vncserver_listen=0.0.0.0
+
+		# Network settings
+		network_api_class=nova.network.neutronv2.api.API
+		neutron_url=http://127.0.0.1:9696
+		neutron_auth_strategy=keystone
+		neutron_admin_tenant_name=service
+		neutron_admin_username=neutron
+		neutron_admin_password=openstacktest
+		neutron_admin_auth_url=http://127.0.0.1:35357/v2.0
+		libvirt_vif_driver=nova.virt.libvirt.vif.QuantumLinuxBridgeVIFDriver
+		linuxnet_interface_driver=nova.network.linux_net.LinuxBridgeInterfaceDriver
+		firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver
+
+		#Metadata
+		service_neutron_metadata_proxy = True
+		neutron_metadata_proxy_shared_secret = helloOpenStack
+		metadata_host = 127.0.0.1
+		metadata_listen = 0.0.0.0
+		metadata_listen_port = 8775
+
+		# Compute #
+		compute_driver=libvirt.LibvirtDriver
+
+		# Cinder #
+		volume_api_class=nova.volume.cinder.API
+		osapi_volume_listen_port=5900
+		cinder_catalog_info=volume:cinder:internalURL
+		
+*	更新 /etc/nova/nova-compute.conf
+
+		vim /etc/nova/nova-compute.conf
+		[DEFAULT]
+		libvirt_type=kvm
+		libvirt_ovs_bridge=br-int
+		libvirt_vif_type=ethernet
+		libvirt_vif_driver=nova.virt.libvirt.vif.LibvirtHybridOVSBridgeDriver
+		libvirt_use_virtio_for_bridges=True
+*	重启相关的服务
+
+		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i restart; cd /root/;done
+*	验证服务是否运行
+
+		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i status; cd /root/;done
+*	删除sqlite文件
+
+		rm -rf /var/lib/nova/nova.sqlite
+*	同步数据
+
+		nova-manage db sync
+*	服务显示
+
+		nova-manage service list
+
+
+
+
+
+
+
+
+
+
+
 
 
 
