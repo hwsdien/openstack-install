@@ -264,6 +264,56 @@
 *	查看所有的代理
 
 		neutron agent-list
+		
+*	检测是否支持KVM
+
+		apt-get install -y cpu-checker
+		kvm-ok
+*	加截 kvm_intel 内核模块
+
+		modprobe kvm_intel
+*	安装KVM
+
+		apt-get install -y kvm libvirt-bin pm-utils
+*	更新 /etc/libvirt/qemu.conf
+
+		cgroup_device_acl = [
+		"/dev/null", "/dev/full", "/dev/zero",
+		"/dev/random", "/dev/urandom",
+		"/dev/ptmx", "/dev/kvm", "/dev/kqemu",
+		"/dev/rtc", "/dev/hpet","/dev/net/tun"
+		]
+*	删除默认的网桥
+
+		virsh net-destroy default
+		virsh net-undefine default	
+*	更新 /etc/libvirt/libvirtd.conf
+
+		listen_tls = 0
+		listen_tcp = 1
+		auth_tcp = "none"
+*	更新 /etc/init/libvirt-bin.conf
+
+		env libvirtd_opts="-d -l"
+*	更新 /etc/default/libvirt-bin
+
+		libvirtd_opts="-d -l"
+*	重启服务
+
+		service dbus restart && service libvirt-bin restart
+*	检测服务是否运行
+
+		service dbus status && service libvirt-bin status
+
+
+
+
+
+
+
+
+
+
 
 
 
