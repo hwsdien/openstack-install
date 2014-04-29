@@ -483,6 +483,17 @@
 
 		cd /etc/init.d/; for i in $( ls cinder-* ); do sudo service $i status; cd /root/; done
 
+*	安装Horizon & memcached
+
+		apt-get -y install openstack-dashboard memcached
+*	删除ubuntu主题
+
+		dpkg --purge openstack-dashboard-ubuntu-theme
+*	重启apache & memcached
+
+		service apache2 restart; service memcached restart
+
+
 
 
 
