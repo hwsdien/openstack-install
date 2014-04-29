@@ -178,10 +178,10 @@
 *	验证服务是否运行
 
 		cd /etc/init.d/; for i in $( ls neutron-* ); do sudo service $i status; cd; done
-*	更新 /etc/quantum/quantum.conf 
+*	更新 /etc/neutron/neutron.conf 
 
-		core_plugin = quantum.plugins.linuxbridge.lb_quantum_plugin.LinuxBridgePluginV2
-*	更新 /etc/quantum/api-paste.ini
+		core_plugin = neutron.plugins.linuxbridge.lb_neutron_plugin.LinuxBridgePluginV2
+*	更新 /etc/neutron/api-paste.ini
 
 		vim /etc/neutron/api-paste.ini
 		[filter:authtoken]
@@ -192,7 +192,7 @@
 		admin_tenant_name = service
 		admin_user = neutron
 		admin_password = openstacktest
-*	更新 /etc/quantum/plugins/linuxbridge/linuxbridge_conf.ini
+*	更新 /etc/neutron/plugins/linuxbridge/linuxbridge_conf.ini
 
 		[DATABASE]
 		connection=mysql://neutronUser:neutronPass@127.0.0.1/neutron
@@ -204,10 +204,10 @@
 		tenant_network_type = vlan
 		network_vlan_ranges = physnet1:1000:2999
 		
-*	更新 /etc/quantum/l3_agent.ini
+*	更新 /etc/neutron/l3_agent.ini
 
-		interface_driver = quantum.agent.linux.interface.BridgeInterfaceDriver
-*	更新 /etc/quantum/quantum.conf
+		interface_driver = neutron.agent.linux.interface.BridgeInterfaceDriver
+*	更新 /etc/neutron/neutron.conf
 
 		vim /etc/neutron/neutron.conf
 		#RabbitMQ IP
@@ -228,10 +228,10 @@
 
 		[DATABASE]
 		connection = mysql://neutronUser:neutronPass@127.0.0.1/neutron
-*	更新 /etc/quantum/dhcp_agent.ini
+*	更新 /etc/neutron/dhcp_agent.ini
 
-		interface_driver = quantum.agent.linux.interface.BridgeInterfaceDriver
-*	更新 /etc/quantum/metadata_agent.ini
+		interface_driver = neutron.agent.linux.interface.BridgeInterfaceDriver
+*	更新 /etc/neutron/metadata_agent.ini
 
 		vim /etc/neutron/metadata_agent.ini
 		# The Neutron user information for accessing the Neutron API.
@@ -371,7 +371,7 @@
 		neutron_admin_username=neutron
 		neutron_admin_password=openstacktest
 		neutron_admin_auth_url=http://127.0.0.1:35357/v2.0
-		libvirt_vif_driver=nova.virt.libvirt.vif.QuantumLinuxBridgeVIFDriver
+		libvirt_vif_driver=nova.virt.libvirt.vif.neutronLinuxBridgeVIFDriver
 		linuxnet_interface_driver=nova.network.linux_net.LinuxBridgeInterfaceDriver
 		firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver
 
