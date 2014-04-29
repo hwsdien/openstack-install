@@ -171,6 +171,112 @@
 *	列出所有映像
 
 		glance image-list
+		
+*	安装Neutron
+
+		apt-get install -y neutron-server neutron-plugin-linuxbridge neutron-plugin-linuxbridge-agent dnsmasq neutron-dhcp-agent neutron-l3-agent 
+*	验证服务是否运行
+
+		cd /etc/init.d/; for i in $( ls neutron-* ); do sudo service $i status; cd; done
+*	更新 /etc/quantum/quantum.conf 
+
+		core_plugin = quantum.plugins.linuxbridge.lb_quantum_plugin.LinuxBridgePluginV2
+*	更新 /etc/quantum/api-paste.ini
+
+		vim /etc/neutron/api-paste.ini
+		[filter:authtoken]
+		paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
+		auth_host = 127.0.0.1
+		auth_port = 35357
+		auth_protocol = http
+		admin_tenant_name = service
+		admin_user = neutron
+		admin_password = openstacktest
+*	更新 /etc/quantum/plugins/linuxbridge/linuxbridge_conf.ini
+
+		[DATABASE]
+		connection=mysql://neutronUser:neutronPass@127.0.0.1/neutron
+		
+		[LINUX_BRIDGE]
+		physical_interface_mappings = physnet1:eth1
+		
+		[VLANS]
+		tenant_network_type = vlan
+		network_vlan_ranges = physnet1:1000:2999
+		
+*	更新 /etc/quantum/l3_agent.ini
+
+		interface_driver = quantum.agent.linux.interface.BridgeInterfaceDriver
+*	更新 /etc/quantum/quantum.conf
+
+		vim /etc/neutron/neutron.conf
+		#RabbitMQ IP
+		rabbit_host = 127.0.0.1
+		rabbit_password = nate123
+
+		[keystone_authtoken]
+		auth_host = 127.0.0.1
+		auth_port = 35357
+		auth_protocol = http
+		admin_tenant_name = service
+		admin_user = neutron
+		admin_password = openstacktest
+		signing_dir = /var/lib/neutron/keystone-signing
+		
+		[quotas]
+		quota_driver=neutron.db.quota_db.DbQuotaDriver
+
+		[DATABASE]
+		connection = mysql://neutronUser:neutronPass@127.0.0.1/neutron
+*	更新 /etc/quantum/dhcp_agent.ini
+
+		interface_driver = quantum.agent.linux.interface.BridgeInterfaceDriver
+*	更新 /etc/quantum/metadata_agent.ini
+
+		vim /etc/neutron/metadata_agent.ini
+		# The Neutron user information for accessing the Neutron API.
+		auth_url = http://127.0.0.1:35357/v2.0
+		auth_region = RegionOne
+		admin_tenant_name = service
+		admin_user = neutron
+		admin_password = openstacktest
+
+		# IP address used by Nova metadata server
+		nova_metadata_ip = 172.16.33.128
+
+
+		# TCP Port used by Nova metadata server
+		nova_metadata_port = 8775
+
+		metadata_proxy_shared_secret = helloOpenStack
+		
+*	删除sqlite文件
+
+		rm -rf /var/lib/neutron/neutron.sqlite
+*	重启服务
+
+		cd /etc/init.d/; for i in $( ls neutron-* ); do sudo service $i restart; cd /root/; done
+		service dnsmasq restart
+*	验证服务是否运行
+
+		cd /etc/init.d/; for i in $( ls neutron-* ); do sudo service $i status; cd /root/; done
+		service dnsmasq status
+*	查看所有的代理
+
+		neutron agent-list
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
