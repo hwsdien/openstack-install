@@ -69,6 +69,26 @@
 *	重启MySQL
 
 		service mysql restart
+*	安装RabbitMQ
+
+		apt-get install -y rabbitmq-server
+*	更改RabbitMQ的默认密码
+
+		rabbitmqctl change_password guest nate123
+
+*	安装NTP
+
+		apt-get install -y ntp
+*	安装vlan bridge-utils
+
+		apt-get install -y vlan bridge-utils
+*	设置IP转发
+
+		sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+		sysctl -p
+
+
+
 
 
 
