@@ -29,7 +29,7 @@
 		reboot
 		
 		
-#####安装
+#####安装MySQL
 *	安装MySQL
 
 		apt-get install -y mysql-server python-mysqldb
@@ -69,13 +69,17 @@
 *	重启MySQL
 
 		service mysql restart
+		
+#####安装RabbitMQ
 *	安装RabbitMQ
 
 		apt-get install -y rabbitmq-server
+
 *	更改RabbitMQ的默认密码
 
 		rabbitmqctl change_password guest nate123
 
+#####安装NTP 
 *	安装NTP
 
 		apt-get install -y ntp
@@ -86,6 +90,8 @@
 
 		sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
 		sysctl -p
+		
+#####安装Keystone
 *	安装Keystone
 
 		apt-get install -y keystone
@@ -120,6 +126,8 @@
 
 		keystone user-list
 		keystone token-get
+
+#####安装Glance
 *	安装Glance
 
 		apt-get install -y glance
@@ -172,6 +180,7 @@
 
 		glance image-list
 		
+#####安装Neutron
 *	安装Neutron
 
 		apt-get install -y neutron-server neutron-plugin-linuxbridge neutron-plugin-linuxbridge-agent dnsmasq neutron-dhcp-agent neutron-l3-agent 
@@ -277,6 +286,8 @@
 
 		neutron agent-list
 		
+		
+#####安装KVM
 *	检测是否支持KVM
 
 		apt-get install -y cpu-checker
@@ -316,6 +327,8 @@
 *	检测服务是否运行
 
 		service dbus status && service libvirt-bin status
+		
+#####安装Nova
 *	安装Nova
 
 		apt-get install -y nova-api nova-cert novnc nova-consoleauth nova-scheduler nova-novncproxy nova-doc nova-conductor nova-compute-kvm
@@ -409,7 +422,7 @@
 		libvirt_type=kvm
 		compute_driver=libvirt.LibvirtDriver
 		libvirt_vif_type=ethernet
-		libvirt_vif_driver=nova.virt.libvirt.vif.QuantumLinuxBridgeVIFDriver
+		libvirt_vif_driver=nova.virt.libvirt.vif.NeutronLinuxBridgeVIFDriver
 *	重启相关的服务
 
 		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i restart; cd /root/;done
@@ -426,6 +439,7 @@
 
 		nova-manage service list
 		
+#####安装Cinder
 *	安装Cinder
 
 		apt-get install -y cinder-api cinder-scheduler cinder-volume iscsitarget open-iscsi iscsitarget-dkms
@@ -494,6 +508,7 @@
 
 		cd /etc/init.d/; for i in $( ls cinder-* ); do sudo service $i status; cd /root/; done
 
+#####安装Horizon
 *	安装Horizon & memcached
 
 		apt-get -y install openstack-dashboard memcached
