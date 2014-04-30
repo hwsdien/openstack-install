@@ -13,9 +13,11 @@
 
 *	[安装环境设置] [env]
 *	[安装MySQL] [mysql]
+*	[安装Neutron] [neutron]
 
    	
 [env]:
+
 #####安装环境设置（所有节点都一样）
 	1、安装OpenSSH-Server
 		apt-get install openssh-server
@@ -37,6 +39,7 @@
 		
 		
 [mysql]:
+
 #####安装MySQL
 *	安装MySQL
 
@@ -188,6 +191,8 @@
 
 		glance image-list
 		
+[neutron]:
+
 #####安装Neutron
 *	安装Neutron
 
