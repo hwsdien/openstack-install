@@ -12,8 +12,16 @@
 #####安装内容
 
 *	[安装环境设置](#安装环境设置)
-*	[安装MySQL](#安装MySQL)
-*	[安装Neutron](#安装Neutron)
+*	[安装MySQL](#安装mysql)
+*	[安装RabbitMQ](#安装rabbitmq)
+*	[安装NTP](#安装ntp)
+*	[安装Keystone](#安装keystone)
+*	[安装Glance](#安装glance)
+*	[安装Neutron](#安装neutron)
+*	[安装KVM](#安装kvm)
+*	[安装Nova](#安装nova)
+*	[安装Horizon](#安装horizon)
+
    	
 
 #####安装环境设置
