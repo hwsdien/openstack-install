@@ -207,6 +207,17 @@
 *	更新 /etc/neutron/l3_agent.ini
 
 		interface_driver = neutron.agent.linux.interface.BridgeInterfaceDriver
+		use_namespaces = False
+		router_id = 1
+		external_network_bridge =
+*	更新 /etc/default/neutron-server
+
+		NEUTRON_PLUGIN_CONFIG="/etc/neutron/plugins/linuxbridge/linuxbridge_conf.ini"
+
+*	更新 /etc/default/dnsmasq
+
+		ENABLED=0
+
 *	更新 /etc/neutron/neutron.conf
 
 		vim /etc/neutron/neutron.conf
@@ -231,6 +242,7 @@
 *	更新 /etc/neutron/dhcp_agent.ini
 
 		interface_driver = neutron.agent.linux.interface.BridgeInterfaceDriver
+		use_namespaces = False
 *	更新 /etc/neutron/metadata_agent.ini
 
 		vim /etc/neutron/metadata_agent.ini
@@ -378,9 +390,9 @@
 		#Metadata
 		service_neutron_metadata_proxy = True
 		neutron_metadata_proxy_shared_secret = helloOpenStack
-		metadata_host = 127.0.0.1
-		metadata_listen = 0.0.0.0
-		metadata_listen_port = 8775
+		#metadata_host = 127.0.0.1
+		#metadata_listen = 0.0.0.0
+		#metadata_listen_port = 8775
 
 		# Compute #
 		compute_driver=libvirt.LibvirtDriver
