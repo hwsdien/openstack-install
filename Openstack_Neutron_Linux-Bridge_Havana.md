@@ -242,7 +242,7 @@
 		admin_password = openstacktest
 
 		# IP address used by Nova metadata server
-		nova_metadata_ip = 172.16.33.128
+		nova_metadata_ip = 127.0.0.1
 
 
 		# TCP Port used by Nova metadata server
@@ -395,10 +395,9 @@
 		vim /etc/nova/nova-compute.conf
 		[DEFAULT]
 		libvirt_type=kvm
-		libvirt_ovs_bridge=br-int
+		compute_driver=libvirt.LibvirtDriver
 		libvirt_vif_type=ethernet
-		libvirt_vif_driver=nova.virt.libvirt.vif.LibvirtHybridOVSBridgeDriver
-		libvirt_use_virtio_for_bridges=True
+		libvirt_vif_driver=nova.virt.libvirt.vif.QuantumLinuxBridgeVIFDriver
 *	重启相关的服务
 
 		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i restart; cd /root/;done
