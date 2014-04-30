@@ -399,6 +399,9 @@
 		libvirt_vif_driver=nova.virt.libvirt.vif.neutronLinuxBridgeVIFDriver
 		linuxnet_interface_driver=nova.network.linux_net.LinuxBridgeInterfaceDriver
 		firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver
+		
+		neutron_use_dhcp=true
+		network_manager=nova.network.neutron.manager.QuantumManager
 
 		#Metadata
 		service_neutron_metadata_proxy = True
@@ -423,6 +426,7 @@
 		compute_driver=libvirt.LibvirtDriver
 		libvirt_vif_type=ethernet
 		libvirt_vif_driver=nova.virt.libvirt.vif.NeutronLinuxBridgeVIFDriver
+		linuxnet_interface_driver=nova.network.linux_net.NeutronLinuxBridgeInterfaceDriver
 *	重启相关的服务
 
 		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i restart; cd /root/;done
