@@ -9,6 +9,13 @@
 #####说明
 	安装流程参考了网上信息，个人记录，请勿使用，发生一切事情，后果自负！！！
 	
+#####安装内容
+
+*	[安装环境设置] [env]
+*	[安装MySQL] [mysql]
+
+   	
+[env]:
 #####安装环境设置（所有节点都一样）
 	1、安装OpenSSH-Server
 		apt-get install openssh-server
@@ -29,6 +36,7 @@
 		reboot
 		
 		
+[mysql]:
 #####安装MySQL
 *	安装MySQL
 
