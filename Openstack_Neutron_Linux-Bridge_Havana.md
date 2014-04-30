@@ -11,14 +11,12 @@
 	
 #####安装内容
 
-*	[安装环境设置] [env]
-*	[安装MySQL] [mysql]
-*	[安装Neutron] [neutron]
-
+*	[安装环境设置](#安装环境设置)
+*	[安装MySQL](#安装MySQL)
+*	[安装Neutron](#安装Neutron)
    	
-[env]:
 
-#####安装环境设置（所有节点都一样）
+#####安装环境设置
 	1、安装OpenSSH-Server
 		apt-get install openssh-server
 	2、增加Havana的源
@@ -37,8 +35,6 @@
 	9、重启系统
 		reboot
 		
-		
-[mysql]:
 
 #####安装MySQL
 *	安装MySQL
@@ -191,7 +187,6 @@
 
 		glance image-list
 		
-[neutron]:
 
 #####安装Neutron
 *	安装Neutron
