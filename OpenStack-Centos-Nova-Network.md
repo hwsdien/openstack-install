@@ -413,7 +413,25 @@
 		nova list
 
 
+#####安装Horizon
+*	安装
 
+		yum -y install openstack-dashboard
+*	启动apache服务
+
+		service httpd start
+*	设置开机启动
+
+		chkconfig httpd on
+*	重启nova-api
+
+		service openstack-nova-api restart
+*	系统防火墙设置
+
+		iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+		iptables -I INPUT -p tcp -m multiport --dports 5900:6000 -j ACCEPT
+		iptables -I INPUT -p tcp --dport 6080 -j ACCEPT
+		service iptables save
 
 
 #####相关错误及解决方法
