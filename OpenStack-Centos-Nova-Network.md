@@ -301,8 +301,10 @@
 		verbose=True
 
 		allow_resize_to_same_host = true
-		rpc_backend = nova.openstack.common.rpc.impl_qpid
-		qpid_hostname = 192.168.0.100
+		rpc_backend=nova.openstack.common.rpc.impl_kombu
+		rabbit_host = localhost
+		rabbit_port = 5672
+		rabbit_password = nate123
 		libvirt_type = kvm
 		glance_api_servers = 192.168.0.100:9292
 
@@ -409,22 +411,6 @@
 *	查看运行
 
 		nova list
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
