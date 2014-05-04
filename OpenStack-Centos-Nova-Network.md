@@ -154,7 +154,7 @@
 		service openstack-keystone restart
 *	创建管理员
 
-		keystoneuser-create --name=admin --pass=123123 --email=nate_yhz@outlook.com
+		keystone user-create --name=admin --pass=123123 --email=nate_yhz@outlook.com
 *	创建管理员角色
 
 		keystone role-create --name=admin
@@ -177,6 +177,108 @@
 		keystone service-list 		
 		keystone endpoint-create --service-id=上面命令获取的service_id --publicurl=http://$ip:5000/v2.0 --internalurl=http://$ip:5000/v2.0 --adminurl=http://$ip:35357/v2.0
 		
+#####安装Glance
+*	安装
+
+		yum -y install openstack-glance
+*	创建数据库
+
+		openstack-db --init --service glance
+*	修改配置
+
+		openstack-config --set /etc/glance/glance-api.conf DEFAULT sql_connection mysql://glance:glance@localhost/glance
+		openstack-config --set /etc/glance/glance-registry.conf DEFAULT sql_connection mysql://glance:glance@localhost/glance
+*	创建glance用户
+
+		keystone user-create --name=glance --pass=123123 --email=nate_yhz@outlook.com
+*	绑定用户
+
+		keystone user-role-add --user=glance --tenant=service --role=admin
+*	创建服务
+
+		keystone service-create --name=glance --type=image --description="Glance ImageService"
+*	创建endpoint
+
+		外部IP
+		export ip=192.168.0.100
+
+		获取 service id 
+		keystone service-list
+		keystone endpoint-create --service-id=上面命令获取的service_id --publicurl=http://$ip:9292 --internalurl=http://$ip:9292 --adminurl=http://$ip:9292
+*	修改glance-api.conf
+
+		openstack-config --set /etc/glance/glance-api.conf keystone_authtoken auth_host 127.0.0.1
+		openstack-config --set /etc/glance/glance-api.conf keystone_authtoken auth_port 35357
+		openstack-config --set /etc/glance/glance-api.conf keystone_authtoken auth_protocol http
+		openstack-config --set /etc/glance/glance-api.conf keystone_authtoken admin_tenant_name service
+		openstack-config --set /etc/glance/glance-api.conf keystone_authtoken admin_user glance
+		openstack-config --set /etc/glance/glance-api.conf keystone_authtoken admin_password 123123
+*	修改glance-registry.conf
+
+		openstack-config --set /etc/glance/glance-registry.conf keystone_authtoken auth_host 127.0.0.1
+		openstack-config --set /etc/glance/glance-registry.conf keystone_authtoken auth_port 35357
+		openstack-config --set /etc/glance/glance-registry.conf keystone_authtoken auth_protocol http
+		openstack-config --set /etc/glance/glance-registry.conf keystone_authtoken admin_tenant_name service
+		openstack-config --set /etc/glance/glance-registry.conf keystone_authtoken admin_user glance
+		openstack-config --set /etc/glance/glance-registry.conf keystone_authtoken admin_password 123123
+*	修改ini文件
+
+		cp /usr/share/glance/glance-api-dist-paste.ini /etc/glance/glance-api-paste.ini
+		cp /usr/share/glance/glance-registry-dist-paste.ini /etc/glance/glance-registry-paste.ini
+		chown -R root:glance /etc/glance/glance-api-paste.ini 
+		chown -R root:glance /etc/glance/glance-registry-paste.ini
+
+		openstack-config --set /etc/glance/glance-api.conf paste_deploy config_file /etc/glance/glance-api-paste.ini
+		openstack-config --set /etc/glance/glance-api.conf paste_deploy flavor keystone
+		openstack-config --set /etc/glance/glance-registry.conf paste_deploy config_file /etc/glance/glance-registry-paste.ini
+		openstack-config --set /etc/glance/glance-registry.conf paste_deploy flavor keystone
+		
+		openstack-config --set /etc/glance/glance-api-paste.ini filter:authtoken auth_host 127.0.0.1
+		openstack-config --set /etc/glance/glance-api-paste.ini filter:authtoken admin_tenant_name service
+		openstack-config --set /etc/glance/glance-api-paste.ini filter:authtoken admin_user glance
+		openstack-config --set /etc/glance/glance-api-paste.ini filter:authtoken admin_password 123123
+		
+		openstack-config --set /etc/glance/glance-registry-paste.ini filter:authtoken auth_host 127.0.0.1
+		openstack-config --set /etc/glance/glance-registry-paste.ini filter:authtoken admin_tenant_name service
+		openstack-config --set /etc/glance/glance-registry-paste.ini filter:authtoken admin_user glance
+		openstack-config --set /etc/glance/glance-registry-paste.ini filter:authtoken admin_password service
+		
+*	启动
+
+		service openstack-glance-api start
+		service openstack-glance-registry start
+*	设置开机自启动
+
+		chkconfig openstack-glance-api on
+		chkconfig openstack-glance-registry on
+*	重启
+		
+		service openstack-glance-api restart
+		service openstack-glance-registry restart
+*	测试
+
+		glance image-create --name myFirstImage --is-public true --container-format bare --disk-format qcow2 --location https://launchpad.net/cirros/trunk/0.3.0/+download/cirros-0.3.0-x86_64-disk.img
+*	列出所有映像
+
+		glance image-list
+
+
+		
+
+
+
+		
+
+
+
+		
+	
+
+
+
+
+
+
 		
 		
 
