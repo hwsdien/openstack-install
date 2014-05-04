@@ -87,6 +87,29 @@
 
 		service mysqld restart
 
+#####安装RabbitMQ
+*	安装
+
+		yum -y install rabbitmq-server
+*	启动
+
+		service rabbitmq-server start
+*	修改密码
+
+		rabbitmqctl change_password guest nate123
+
+*	设置开机启动
+
+		chkconfig rabbitmq-server on
+*	重启
+
+		service rabbitmq-server restart
+
+
+
+
+
+
 
 
 
