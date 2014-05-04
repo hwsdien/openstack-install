@@ -125,6 +125,10 @@
 		openssl rand -hex 10
 		
 		vim ~/creds
+		export OS_USERNAME=admin
+		export OS_TENANT_NAME=admin
+		export OS_PASSWORD=123123
+		export OS_AUTH_URL=http://127.0.0.1:5000/v2.0
 		export SERVICE_TOKEN=上面openssl得到的值
 		export SERVICE_ENDPOINT=http://127.0.0.1:35357/v2.0
 		
@@ -148,6 +152,38 @@
 *	重启
 
 		service openstack-keystone restart
+*	创建管理员
+
+		keystoneuser-create --name=admin --pass=123123 --email=nate_yhz@outlook.com
+*	创建管理员角色
+
+		keystone role-create --name=admin
+*	创建admin & service 的tenant
+
+		keystone tenant-create --name=admin --description='Admin Tenant'
+		keystone tenant-create --name=service --description='Service Tenant'
+*	绑定用户，角色和租户
+
+		keystone user-role-add --user=admin --tenant=admin --role=admin
+*	创建服务
+
+		keystone service-create --name=keystone --type=identity --description="KeystoneIdentity Service"
+*	创建endpoint
+		
+		外部IP
+		export ip=192.168.0.100
+
+		获取 service id 
+		keystone service-list 		
+		keystone endpoint-create --service-id=上面命令获取的service_id --publicurl=http://$ip:5000/v2.0 --internalurl=http://$ip:5000/v2.0 --adminurl=http://$ip:35357/v2.0
+		
+		
+		
+
+
+
+
+
 
 
 
