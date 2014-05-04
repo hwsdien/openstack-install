@@ -65,6 +65,31 @@
 		
 #####安装MySQL
 
+*	安装
+
+		yum -y install mysql mysql-server MySQL-python
+	
+*	修改配置文件
+
+		vim /etc/my.cnf
+		[mysqld]
+		bind-address = 0.0.0.0  
+*	启动
+
+		service mysqld start
+*	设置开机启动
+
+		chkconfig mysqld on
+*	修改密码
+
+		mysqladmin -uroot password '123123'; history -c
+*	重启
+
+		service mysqld restart
+
+
+
+
 
 
 
