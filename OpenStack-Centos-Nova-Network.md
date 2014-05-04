@@ -104,6 +104,58 @@
 *	重启
 
 		service rabbitmq-server restart
+		
+#####安装OpenStack工具包
+*	安装
+
+		yum -y install openstack-utils
+
+#####安装Keystone
+*	安装
+
+		yum -y install openstack-keystone
+*	创建keystone 数据库
+
+		openstack-db --init --service keystone
+*	修改配置
+
+		openstack-config --set /etc/keystone/keystone.conf sql connection mysql://keystone:keystone@localhost/keystone
+*	创建设置环境变量文件
+
+		openssl rand -hex 10
+		
+		vim ~/creds
+		export SERVICE_TOKEN=上面openssl得到的值
+		export SERVICE_ENDPOINT=http://127.0.0.1:35357/v2.0
+		
+		source ~/creds
+*	配置token
+
+		openstack-config --set /etc/keystone/keystone.conf DEFAULT admin_token $SERVICE_TOKEN
+*	创建密钥
+
+		keystone-manage pki_setup --keystone-user keystone --keystone-group keystone
+*	设置访问权限
+
+		chown -R keystone:keystone /etc/keystone/* 
+		chown keystone:keystone /var/log/keystone/keystone.log
+*	启动
+
+		service openstack-keystone start
+*	设置开机启动
+
+		chkconfig openstack-keystone on
+*	重启
+
+		service openstack-keystone restart
+
+
+
+		
+
+
+
+
 
 
 
