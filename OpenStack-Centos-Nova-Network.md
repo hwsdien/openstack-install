@@ -213,6 +213,11 @@
 		openstack-config --set /etc/glance/glance-api.conf keystone_authtoken admin_tenant_name service
 		openstack-config --set /etc/glance/glance-api.conf keystone_authtoken admin_user glance
 		openstack-config --set /etc/glance/glance-api.conf keystone_authtoken admin_password 123123
+		
+		openstack-config --set /etc/glance/glance-api.conf DEFAULT notifier_strategy rabbit
+		openstack-config --set /etc/glance/glance-api.conf DEFAULT rabbit_password nate123
+		
+		
 *	修改glance-registry.conf
 
 		openstack-config --set /etc/glance/glance-registry.conf keystone_authtoken auth_host 127.0.0.1
@@ -241,7 +246,7 @@
 		openstack-config --set /etc/glance/glance-registry-paste.ini filter:authtoken auth_host 127.0.0.1
 		openstack-config --set /etc/glance/glance-registry-paste.ini filter:authtoken admin_tenant_name service
 		openstack-config --set /etc/glance/glance-registry-paste.ini filter:authtoken admin_user glance
-		openstack-config --set /etc/glance/glance-registry-paste.ini filter:authtoken admin_password service
+		openstack-config --set /etc/glance/glance-registry-paste.ini filter:authtoken admin_password 123123
 		
 *	启动
 
@@ -261,13 +266,183 @@
 *	列出所有映像
 
 		glance image-list
+		
+#####安装Nova
+*	安装
 
+		yum -y install openstack-nova
+*	创建数据库
+
+		openstack-db --init --service nova
+*	创建nova用户
+
+		keystone user-create --name=nova --pass=123123 --email=nate_yhz@outlook.com
+*	绑定用户
+
+		keystone user-role-add --user=nova --tenant=service --role=admin
+*	创建服务
+
+		keystone service-create --name=nova --type=compute --description="Nova Compute Service"
+
+*	创建endpoint
+
+		外部IP
+		export ip=192.168.0.100
+
+		获取 service id 
+		keystone service-list
+		keystone endpoint-create --service-id=上面命令获取的service_id --publicurl=http://$ip:8774/v2/%\(tenant_id\)s --internalurl=http://$ip:8774/v2/%\(tenant_id\)s --adminurl=http://$ip:8774/v2/%\(tenant_id\)s
+*	修改nova.conf
+
+		[DEFAULT]
+		my_ip = 192.168.0.100
+		auth_strategy = keystone
+		state_path = /var/lib/nova
+		verbose=True
+
+		allow_resize_to_same_host = true
+		rpc_backend = nova.openstack.common.rpc.impl_qpid
+		qpid_hostname = 192.168.0.100
+		libvirt_type = kvm
+		glance_api_servers = 192.168.0.100:9292
+
+		novncproxy_base_url = http://192.168.0.100:6080/vnc_auto.html
+		vncserver_listen = $my_ip
+		vncserver_proxyclient_address = $my_ip
+		vnc_enabled = true
+		vnc_keymap = en-us
+ 
+		network_manager = nova.network.manager.FlatDHCPManager
+		firewall_driver = nova.virt.firewall.NoopFirewallDriver
+		multi_host = True
+		flat_interface = eth1
+		flat_network_bridge = br1
+		public_interface = eth0
+
+		instance_usage_audit = True
+		instance_usage_audit_period = hour
+		notify_on_state_change = vm_and_task_state
+		notification_driver = nova.openstack.common.notifier.rpc_notifier
+
+		compute_scheduler_driver=nova.scheduler.simple.SimpleScheduler
+		[hyperv]
+		[zookeeper]
+		[osapi_v3]
+		[conductor]
+		[keymgr]
+		[cells]
+		[database]
+		[image_file_url]
+		[baremetal]
+		[rpc_notifier2]
+		[matchmaker_redis]
+		[ssl]
+		[trusted_computing]
+		[upgrade_levels]
+		[matchmaker_ring]
+		[vmware]
+		[spice]
+		[keystone_authtoken]
+		auth_host = 127.0.0.1
+		auth_port = 35357
+		auth_protocol = http
+		admin_user = nova
+		admin_tenant_name = service
+		admin_password = 123123
+
+*	启动libvirtd
+
+		service libvirtd start
+*	删除default
+
+		virsh net-destroy default
+		virsh net-undefine default
+*	设置开机启动
+
+		chkconfig libvirtd on
+*	重启
+
+		service libvirtd restart
+*	启动 messagebus
+
+		service messagebus start
+*	设置开机启动
+
+		chkconfig messagebus on
+*	启动nova
+
+		service openstack-nova-api start
+		service openstack-nova-cert start
+		service openstack-nova-consoleauth start
+		service openstack-nova-scheduler start
+		service openstack-nova-conductor start
+		service openstack-nova-novncproxy start
+		service openstack-nova-compute start
+		service openstack-nova-network start
+*	配置nova
+
+		chkconfig openstack-nova-api on
+		chkconfig openstack-nova-cert on
+		chkconfig openstack-nova-consoleauth on
+		chkconfig openstack-nova-scheduler on
+		chkconfig openstack-nova-conductor on
+		chkconfig openstack-nova-novncproxy on
+		chkconfig openstack-nova-compute on
+		chkconfig openstack-nova-network on
+*	创建网络
+
+		nova network-create vmnet --fixed-range-v4=10.0.0.0/24 --bridge-interface=br1 --multi-host=T
+*	查看网络
+
+		nova network-list
+		nova-manage network list
+*	设置防火墙开放22端口和icmp协议
+
+		nova secgroup-add-rule default tcp 22 22 0.0.0.0/0
+		nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
+*	查看可用镜像
+
+		nova image-list
+*	创建实例
+
+		nova boot --flavor 1 --image myFirstImage test_vm
+*	查看运行
+
+		nova list
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####相关错误及解决方法
+*	错误#1
+
+		修改 notifier_strategy = rabbit
+		'glance.notifier.notify_kombu.RabbitStrategy' is not an available notifier strategy.
+		
+		解决办法：
+		 yum install python-kombu
 
 		
 
 
 
-		
 
 
 
