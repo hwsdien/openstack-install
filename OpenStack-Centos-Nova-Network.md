@@ -472,6 +472,7 @@
 		iptables -I INPUT -p tcp --dport 5000 -j ACCEPT
 		iptables -I INPUT -p tcp --dport 35357 -j ACCEPT
 		iptables -I INPUT -p tcp --dport 5672 -j ACCEPT
+		iptables -I INPUT -p tcp --dport 9292 -j ACCEPT
 		service iptables save
 
 
@@ -665,6 +666,11 @@
 *	查看服务
 
 		nova-manage service list
+*	设置防火墙
+
+		iptables -I INPUT -p tcp -m multiport --dports 5900:6000 -j ACCEPT
+		service iptables save
+
 
 
 
