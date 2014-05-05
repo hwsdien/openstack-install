@@ -4,64 +4,76 @@
 	nate.yu <nate_yhz@outlook.com>
 	
 #####Requirements
-	Ubuntu 12.04 kernel 3.2.0-58
-	
+	Ubuntu 12.04 LTS 	
 #####说明
 	安装流程参考了网上信息，个人记录，请勿使用，发生一切事情，后果自负！！！
 	
 #####安装环境设置
-	1、安装OpenSSH-Server
+*	安装OpenSSH-Server
+
 		apt-get install openssh-server
-	2、增加Havana的源
+*	增加Havana的源
+
 		apt-get install python-software-properties
 		add-apt-repository cloud-archive:havana
-	3、修改默认的源
+*	修改默认的源
+
 		sed -i 's/cn.archive.ubuntu.com/mirrors.yun-idc.com/g' /etc/apt/sources.list
-	4、更新源
+*	更新源
+
 		apt-get update
-	5、安装内核(openvswitch 1.9.0最高支持到3.8的内核，默认的3.11的内核，所以要改)
-		apt-get install linux-headers-3.2.0-58-generic
-		apt-get install linux-image-3.2.0-58-generic
-	6、修改grub默认启动的内核
-		sed -i 's/default="0/default="2/g' /boot/grub/grub.cfg
-	7、更新已安装的包和系统
+*	更新已安装的包和系统
+
 		apt-get upgrade
-		apt-get dist-upgrade(视情况)
-	8、更改计算机名称
+		apt-get dist-upgrade)
+*	更改计算机名称
+
 		vim /etc/hostname
 		vim /etc/hosts
-	9、重启系统
+*	重启系统
+
 		rebooted
 
-#####安装步骤
-	1、设置IP转发
+#####安装基础软件
+*	设置IP转发
+
 		sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
 		sysctl -p
 		
-	2、更改limits
+*	更改limits
+
 		vim /etc/security/limits.conf
 		*               soft    nofile           10240 
 		*               hard    nofile           10240
 		
-	3、检测kvm
+*	检测kvm
+
 		apt-get install cpu-checker
 		kvm-ok
 		modprobe kvm_intel	
-	4、安装qemu
+*	安装qemu
+
 		apt-get install qemu-utils	
-	5、安装网桥工具
+*	安装网桥工具
+
 		apt-get install bridge-utils
+		
+#####安装MySQL
 	
-	6、安装MySQL
+*	安装MySQL
+
 		apt-get install -y mysql-server python-mysqldb
-	7、配置MySQL
+*	配置MySQL
+
 		sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mysql/my.cnf
-	8、删除所有空用户
+*	删除所有空用户
+
 		mysql -uroot -p
 		use mysql;
 		delete from user where user='';
 		flush privileges;
-	9、创建数据库和用户
+*	创建数据库和用户
+
 		#Keystone
 		CREATE DATABASE keystone;
 		GRANT ALL ON keystone.* TO 'keystoneUser'@'%' IDENTIFIED BY 'keystonePass';
@@ -80,48 +92,65 @@
 		
 		flush privileges;
 		quit;
-	10、重启MySQL
+*	重启MySQL
+
 		service mysql restart
 		
-	11、安装RabbitMQ
-		apt-get install -y rabbitmq-server
-	12、更改RabbitMQ的默认密码
-		rabbitmqctl change_password guest nate123
+#####安装RabbitMQ
 		
-	13、安装Keystone
+*	安装RabbitMQ
+
+		apt-get install -y rabbitmq-server
+*	更改RabbitMQ的默认密码
+
+		rabbitmqctl change_password guest nate123
+#####安装Keystone
+		
+*	安装Keystone
+
 		apt-get install -y keystone
-	14、修改Keystone的配置文件
+*	修改Keystone的配置文件
+
 		vim /etc/keystone/keystone.conf
 		connection = mysql://keystoneUser:keystonePass@127.0.0.1/keystone
-	15、删除Sqlite db文件
+*	删除Sqlite db文件
+
 		rm -rf /var/lib/keystone/keystone.db
-	16、重启Keystone 
+*	重启Keystone 
+
 		service keystone restart
-	17、同步数据
+*	同步数据
+
 		keystone-manage db_sync
-	18、增加初始化数据(需修改脚本文件)
+*	增加初始化数据(需修改脚本文件)
+
 		wget https://raw2.github.com/Ch00k/OpenStack-Havana-Install-Guide/master/keystone_basic.sh
 		wget https://raw2.github.com/Ch00k/OpenStack-Havana-Install-Guide/master/keystone_endpoints_basic.sh
 		chmod a+x ./keystone_*.sh
 		./keystone_basic.sh
 		./keystone_endpoints_basic.sh
-	19、创建设置环境变量文件
+*	创建设置环境变量文件
+
 		vim ./creds
 		export OS_TENANT_NAME=admin
 		export OS_USERNAME=admin
 		export OS_PASSWORD=openstacktest
 		export OS_AUTH_URL="http://127.0.0.1:5000/v2.0/"
-	20、测试keystone
+*	测试keystone
+
 		keystone user-list
 		keystone token-get
 	
-	
-	21、安装Glance
+#####安装Glance	
+*	安装Glance
+
 		apt-get install -y glance
-	22、验证服务是否运行
+*	验证服务是否运行
+
 		service glance-api status
 		service glance-registry status
-	23、更新ini文件
+*	更新ini文件
+
 		vim /etc/glance/glance-api-paste.ini
 		vim /etc/glance/glance-registry-paste.ini
 		[filter:authtoken]
@@ -132,7 +161,8 @@
 		admin_tenant_name = service
 		admin_user = glance
 		admin_password = openstacktest	
-	24、更新conf文件
+*	更新conf文件
+
 		vim /etc/glance/glance-api.conf
 		vim /etc/glance/glance-registry.conf
 		[DEFAULT]
@@ -148,22 +178,30 @@
 
 		[paste_deploy]
 		flavor = keystone
-	25、删除sqlite文件
+*	删除sqlite文件
+
 		rm -rf /var/lib/glance/glance.sqlite
-	26、重启服务
+*	重启服务
+
 		service glance-api restart; service glance-registry restart
-	27、同步数据
+*	同步数据
+
 		glance-manage db_sync
-	28、测试(可wget下来再 < 导入)
+*	测试(可wget下来再 < 导入)
+
 		glance image-create --name myFirstImage --is-public true --container-format bare --disk-format qcow2 --location https://launchpad.net/cirros/trunk/0.3.0/+download/cirros-0.3.0-x86_64-disk.img
-	29、列出所有映像
+*	列出所有映像
+
 		glance image-list
-		
-	30、安装Nova
+#####安装Nova	
+*	安装Nova
+
 		apt-get install nova-novncproxy novnc nova-api nova-ajax-console-proxy nova-cert nova-conductor nova-consoleauth nova-doc nova-scheduler nova-compute-kvm python-guestfs nova-common nova-network
-	31、验证服务是否运行
+*	验证服务是否运行
+
 		cd /etc/init.d/; for i in $( ls nova-* ); do service $i status; cd; done
-	32、更新 /etc/nova/api-paste.ini
+*	更新 /etc/nova/api-paste.ini
+
 		vim /etc/nova/api-paste.ini
 		[filter:authtoken]
 		paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
@@ -176,7 +214,8 @@
 		signing_dirname = /tmp/keystone-signing-nova
 		# Workaround for https://bugs.launchpad.net/nova/+bug/1154809
 		auth_version = v2.0
-	33、更新 /etc/nova/nova.conf
+*	更新 /etc/nova/nova.conf
+
 		vim /etc/nova/nova.conf
 		[DEFAULT]
 		[DEFAULT]
@@ -252,25 +291,35 @@
 		osapi_volume_listen_port=5900
 		cinder_catalog_info=volume:cinder:internalURL
 		
-	34、重启相关的服务
+*	重启相关的服务
+
 		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i restart; cd /root/;done
-	35、验证服务是否运行
+*	验证服务是否运行
+
 		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i status; cd /root/;done
-	36、删除sqlite文件
+*	删除sqlite文件
+
 		rm -rf /var/lib/nova/nova.sqlite
-	37、同步数据
+*	同步数据
+
 		nova-manage db sync
-	38、服务显示
+*	服务显示
+
 		nova-manage service list
 		
-	39、安装Cinder
+#####安装Cinder
+*	安装Cinder
+
 		apt-get install -y cinder-api cinder-scheduler cinder-volume iscsitarget open-iscsi iscsitarget-dkms
-	40、配置iscsi服务
+*	配置iscsi服务
+
 		sed -i 's/false/true/g' /etc/default/iscsitarget
-	41、启动服务
+*	启动服务
+
 		service iscsitarget start
 		service open-iscsi start
-	42、更新 /etc/cinder/api-paste.ini
+*	更新 /etc/cinder/api-paste.ini
+
 		vim /etc/cinder/api-paste.ini
 		[filter:authtoken]
 		paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
@@ -283,7 +332,8 @@
 		admin_tenant_name = service
 		admin_user = cinder
 		admin_password = openstacktest
-	43、更新 /etc/cinder/cinder.conf
+*	更新 /etc/cinder/cinder.conf
+
 		vim /etc/cinder/cinder.conf
 		[DEFAULT]
 		rootwrap_config=/etc/cinder/rootwrap.conf
@@ -295,11 +345,14 @@
 		verbose = True
 		auth_strategy = keystone
 		#osapi_volume_listen_port=5900
-	44、删除sqlite文件
+*	删除sqlite文件
+
 		rm -rf /var/lib/cinder/cinder.sqlite
-	45、同步数据
+*	同步数据
+
 		cinder-manage db sync
-	46、创建硬盘
+*	创建硬盘
+
 		dd if=/dev/zero of=cinder-volumes bs=1 count=0 seek=2G
 		losetup /dev/loop2 cinder-volumes
 		fdisk /dev/loop2
@@ -315,20 +368,28 @@
 		
 		pvcreate /dev/loop2
 		vgcreate cinder-volumes /dev/loop2
-	47、重启相关服务
-		cd /etc/init.d/; for i in $( ls cinder-* ); do sudo service $i restart; cd /root/; done
-	48、验证服务是否在运行
-		cd /etc/init.d/; for i in $( ls cinder-* ); do sudo service $i status; cd /root/; done
+*	重启相关服务
 
-	49、安装Dashboard
+		cd /etc/init.d/; for i in $( ls cinder-* ); do sudo service $i restart; cd /root/; done
+*	验证服务是否在运行
+
+		cd /etc/init.d/; for i in $( ls cinder-* ); do sudo service $i status; cd /root/; done
+		
+#####安装Horizon
+
+*	安装Dashboard
+
 		apt-get install memcached libapache2-mod-wsgi openstack-dashboard
-	50、删除ubuntu主题
+*	删除ubuntu主题
+
 		apt-get remove --purge openstack-dashboard-ubuntu-theme
-	51、开启服务
+*	开启服务
+
 		service apache2 restart
 		service memcached restart
 		
-	52、删除virbr0
+*	删除virbr0
+
 		ifconfig virbr0 down
 		brctl delbr virbr0
 		virsh net-destroy default
