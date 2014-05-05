@@ -206,9 +206,8 @@
     	# Compute #
     	compute_driver=libvirt.LibvirtDriver
     	
-    	cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i restart; cd /root/;done
-    	
-    	cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i status; cd /root/;done
+		cd /usr/bin/; for i in $( ls nova-* ); do sudo service $i restart; cd /root/;done    	
+    	cd /usr/bin/; for i in $( ls nova-* ); do sudo service $i status; cd /root/;done
     	
     	nova-manage db sync
     	
