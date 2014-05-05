@@ -294,6 +294,7 @@
 		keystone endpoint-create --service-id=上面命令获取的service_id --publicurl=http://$ip:8774/v2/%\(tenant_id\)s --internalurl=http://$ip:8774/v2/%\(tenant_id\)s --adminurl=http://$ip:8774/v2/%\(tenant_id\)s
 *	修改nova.conf
 
+		vim /etc/nova/nova.conf
 		[DEFAULT]
 		my_ip = 192.168.0.100
 		auth_strategy = keystone
@@ -391,6 +392,17 @@
 		chkconfig openstack-nova-novncproxy on
 		chkconfig openstack-nova-compute on
 		chkconfig openstack-nova-network on
+*	重启nova
+
+		service openstack-nova-api restart
+		service openstack-nova-cert restart
+		service openstack-nova-consoleauth restart
+		service openstack-nova-scheduler restart
+		service openstack-nova-conductor restart
+		service openstack-nova-novncproxy restart
+		service openstack-nova-compute restart
+		service openstack-nova-network restart
+
 *	创建网络
 
 		nova network-create vmnet --fixed-range-v4=10.0.0.0/24 --bridge-interface=br1 --multi-host=T
@@ -441,7 +453,16 @@
 		'glance.notifier.notify_kombu.RabbitStrategy' is not an available notifier strategy.
 		
 		解决办法：
-		 yum install python-kombu
+		yum install python-kombu
+		 
+*	错误#2
+
+		Invalid HTTP_HOST header (you may need to set ALLOWED_HOSTS): 
+		解决方法：
+		ALLOWED_HOSTS = ['horizon.example.com', 'localhost', '*']
+		service httpd restart
+		
+
 
 		
 
