@@ -25,14 +25,14 @@
 *	更新已安装的包和系统
 
 		apt-get upgrade
-		apt-get dist-upgrade)
+		apt-get dist-upgrade
 *	更改计算机名称
 
 		vim /etc/hostname
 		vim /etc/hosts
 *	重启系统
 
-		rebooted
+		reboot
 
 #####安装基础软件
 *	设置IP转发
