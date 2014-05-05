@@ -41,9 +41,9 @@
 		
 		yum update
 		
-*	安装vim gcc gcc-c++ make cmake
+*	安装vim gcc gcc-c++ make cmake lsof
 
-		yum install vim gcc gcc-c++ make cmake
+		yum install vim gcc gcc-c++ make cmake lsof
 		
 *	修改主机名
 
@@ -328,8 +328,8 @@
 		glance_api_servers = 192.168.0.100:9292
 
 		novncproxy_base_url = http://192.168.0.100:6080/vnc_auto.html
-		vncserver_listen = $my_ip
-		vncserver_proxyclient_address = $my_ip
+		vncserver_listen = 192.168.0.100
+		vncserver_proxyclient_address = 192.168.0.100
 		vnc_enabled = true
 		vnc_keymap = en-us
  
@@ -483,6 +483,190 @@
 		ALLOWED_HOSTS = ['horizon.example.com', 'localhost', '*']
 		service httpd restart
 		
+		
+#### 增加计算节点
+
+#####安装基础软件
+*	修改源
+
+		sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Base.repo
+		
+		sed -i 's/#baseurl=http:\/\/mirror.centos.org/baseurl=http:\/\/mirrors.yun-idc.com/g' /etc/yum.repos.d/CentOS-Base.repo
+		
+		rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+		
+		rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+		
+		yum install http://repos.fedorapeople.org/repos/openstack/openstack-havana/rdo-release-havana-8.noarch.rpm
+		
+		yum update
+		
+*	安装vim gcc gcc-c++ make cmake lsof
+
+		yum install vim gcc gcc-c++ make cmake lsof
+		
+*	修改主机名
+
+		vim /etc/sysconfig/network
+		HOSTNAME=compute-node-1
+*	修改hosts
+
+		vim /etc/hosts
+		127.0.0.1 compute-node-1
+*	关闭selinux
+
+		vim /etc/selinux/config
+		SELINUX=disabled
+*	设置转发
+
+		vim /etc/sysctl.conf
+		net.ipv4.ip_forward = 1
+		
+		sysctl -p 
+*	安装ntpdate
+
+		yum -y install ntpdate
+		
+		ntpdate 192.168.0.100
+*	设置cron
+
+		*/5 * * * * ntpdate 192.168.0.100 >> /var/log/ntpdate.log
+*	创建环境变量文件
+
+		vim ~/creds
+		export OS_USERNAME=admin
+		export OS_TENANT_NAME=admin
+		export OS_PASSWORD=123123
+		export OS_AUTH_URL=http://192.168.0.100:5000/v2.0
+		export SERVICE_TOKEN=控制节点上的值
+		export SERVICE_ENDPOINT=http://192.168.0.100:35357/v2.0
+
+		source ~/creds
+	
+#####安装libvirt
+*	安装
+
+		yum -y install qemu-kvm libvirt
+*	启动
+
+		service libvirtd start
+*	设置开机启动
+
+		chkconfig libvirtd on
+*	删除default
+
+		virsh net-destroy default
+		virsh net-undefine default
+
+*	重启
+		
+		service libvirtd restart
+		
+#####安装MySQL客户端
+*	安装
+
+		yum -y install mysql
+		
+#####安装Nova
+*	安装
+
+		yum -y install openstack-nova-compute openstack-nova-network openstack-nova-scheduler
+*	修改nova.conf
+
+		vim /etc/nova/nova.conf
+		[DEFAULT]
+		my_ip = 192.168.0.101
+		auth_strategy = keystone
+		state_path = /var/lib/nova
+		verbose=True
+
+		allow_resize_to_same_host = true
+		rpc_backend=nova.openstack.common.rpc.impl_kombu
+		rabbit_host = 192.168.0.100
+		rabbit_port = 5672
+		rabbit_password = nate123
+		libvirt_type = kvm
+		glance_api_servers = 192.168.0.100:9292
+
+		novncproxy_base_url = http://192.168.0.100:6080/vnc_auto.html
+		vncserver_listen = 192.168.0.101
+		vncserver_proxyclient_address = 192.168.0.101
+		vnc_enabled = true
+		vnc_keymap = en-us
+
+		network_manager = nova.network.manager.FlatDHCPManager
+		firewall_driver = nova.virt.firewall.NoopFirewallDriver
+		multi_host = True
+		flat_interface = eth1
+		flat_network_bridge = br1
+		public_interface = eth0
+
+		instance_usage_audit = True
+		instance_usage_audit_period = hour
+		notify_on_state_change = vm_and_task_state
+		notification_driver = nova.openstack.common.notifier.rpc_notifier
+
+		compute_scheduler_driver=nova.scheduler.simple.SimpleScheduler
+		[hyperv]
+		[zookeeper]
+		[osapi_v3]
+		[conductor]
+		[keymgr]
+		[cells]
+		[database]
+		sql_connection=mysql://nova:nova@192.168.0.100/nova
+		[image_file_url]
+		[baremetal]
+		[rpc_notifier2]
+		[matchmaker_redis]
+		[ssl]
+		[trusted_computing]
+		[upgrade_levels]
+		[matchmaker_ring]
+		[vmware]
+		[spice]
+		[keystone_authtoken]
+		auth_host = 192.168.0.100
+		auth_port = 35357
+		auth_protocol = http
+		admin_user = nova
+		admin_tenant_name = service
+		admin_password = 123123
+*	启动服务
+
+		service messagebus start
+		service openstack-nova-compute start
+		service openstack-nova-network start
+*	设置开机启动
+
+		chkconfig messagebus on
+		chkconfig openstack-nova-compute on
+		chkconfig openstack-nova-network on
+*	重启服务
+
+		service messagebus restart
+		service openstack-nova-compute restart
+		service openstack-nova-network restart
+*	查看服务
+
+		nova service-list
+
+
+
+
+
+
+
+
+		
+
+
+
+
+
+
+		
+
 
 
 		
