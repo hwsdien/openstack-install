@@ -9,6 +9,22 @@
 #####说明
 	安装流程参考了网上信息，个人记录，请勿使用，发生一切事情，后果自负！！！
 	
+#####安装内容
+*	[网络说明](#网络说明)
+*	[安装基础软件](#安装基础软件)
+*	[安装MySQL](#安装mysql)
+*	[安装RabbitMQ](#安装rabbitmq)
+*	[安装OpenStack工具包](#安装openstack工具包)
+*	[安装Keystone](#安装keystone)
+*	[安装Glance](#安装glance)
+*	[安装Nova](#安装nova)
+*	[安装Horizon](#安装horizon)
+*	[相关错误及解决方法](#相关错误及解决方法)
+
+#####网络说明
+	eth0 接外部网络
+	eth1 接内部网络 禁用DHCP
+	
 #####安装基础软件
 
 *	修改源
@@ -403,9 +419,12 @@
 		service openstack-nova-compute restart
 		service openstack-nova-network restart
 
-*	创建网络
+*	创建内部网络
 
 		nova network-create vmnet --fixed-range-v4=10.0.0.0/24 --bridge-interface=br1 --multi-host=T
+*	创建外部网络
+
+		nova-manage floating create --ip_range=10.211.55.0/24  --pool public_ip
 *	查看网络
 
 		nova network-list
