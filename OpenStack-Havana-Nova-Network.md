@@ -11,7 +11,7 @@
 #####安装环境设置
 *	安装OpenSSH-Server
 
-		apt-get install openssh-server
+		apt-get -y install openssh-server
 *	增加Havana的源
 
 		apt-get install python-software-properties
@@ -22,10 +22,17 @@
 *	更新源
 
 		apt-get update
+*	安装内核
+
+		apt-get install linux-headers-3.2.0-58-generic
+    	apt-get install linux-image-3.2.0-58-generic
+*	修改grub默认启动的内核
+
+		sed -i 's/default="0/default="2/g' /boot/grub/grub.cfg
+
 *	更新已安装的包和系统
 
 		apt-get upgrade
-		apt-get dist-upgrade
 *	更改计算机名称
 
 		vim /etc/hostname
@@ -48,15 +55,15 @@
 		
 *	检测kvm
 
-		apt-get install cpu-checker
+		apt-get -y install cpu-checker
 		kvm-ok
 		modprobe kvm_intel	
 *	安装qemu
 
-		apt-get install qemu-utils	
+		apt-get -y install qemu-utils	
 *	安装网桥工具
 
-		apt-get install bridge-utils
+		apt-get -y install bridge-utils
 		
 #####安装MySQL
 	
@@ -104,6 +111,7 @@
 *	更改RabbitMQ的默认密码
 
 		rabbitmqctl change_password guest nate123
+		
 #####安装Keystone
 		
 *	安装Keystone
@@ -193,6 +201,7 @@
 *	列出所有映像
 
 		glance image-list
+		
 #####安装Nova	
 *	安装Nova
 
@@ -218,7 +227,6 @@
 
 		vim /etc/nova/nova.conf
 		[DEFAULT]
-		[DEFAULT]
 		logdir=/var/log/nova
 		state_path=/var/lib/nova
 		lock_path=/run/lock/nova
@@ -227,16 +235,13 @@
 		api_paste_config=/etc/nova/api-paste.ini
 		compute_scheduler_driver=nova.scheduler.simple.SimpleScheduler
 		rabbit_host=127.0.0.1
-		rabbit_password=123123
+		rabbit_password=nate123
 
 		nova_url=http://127.0.0.1:8774/v1.1/
 		sql_connection=mysql://novaUser:novaPass@127.0.0.1/nova
 		root_helper=sudo nova-rootwrap /etc/nova/rootwrap.conf
 
 		cpu_allocation_ratio=16.0
-
-		osapi_compute_listen = 0.0.0.0
-		osapi_compute_listen_port = 8774
 
 		#inject password
 		libvirt_inject_password=true
@@ -265,23 +270,16 @@
 		firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver
 		network_manager=nova.network.manager.FlatDHCPManager
 		public_interface=eth0
-		flat_interface=eth0
+		flat_interface=eth1
 		flat_network_bridge=br100
-		flat_injected=False
-		force_dhcp_release=true
-
-		fixed_range=192.168.100.0/24
-		flat_network_dhcp_start=192.168.100.2
-		floating_range=10.211.55.0/24
+		force_dhcp_release=True
 
 		allow_same_net_traffic=False
 		send_arp_for_ha=True
 		share_dhcp_address=True
 
 		network_size=256
-		multi_host=False
-		#enabled_apis=metadata
-
+		multi_host=True
 
 		# Compute #
 		compute_driver=libvirt.LibvirtDriver
@@ -303,6 +301,10 @@
 *	同步数据
 
 		nova-manage db sync
+*	重启相关的服务
+
+		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i restart; cd /root/;done
+
 *	服务显示
 
 		nova-manage service list
@@ -394,6 +396,22 @@
 		brctl delbr virbr0
 		virsh net-destroy default
 		virsh net-undefine default
+*	创建内部网络
+
+		nova network-create vmnet --fixed-range-v4=10.0.0.0/24 --bridge-interface=br100 --multi-host=T
+*	创建外部网络
+
+		nova-manage floating create --ip_range=10.211.55.0/24  --pool public_ip
+*	查看网络
+
+		nova network-list
+		nova-manage network list
+*	设置防火墙开放22端口和icmp协议
+
+		nova secgroup-add-rule default tcp 22 22 0.0.0.0/0
+		nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
+
+
 		
 #####相关错误
 	qemu-kvm: wrong dependency on librdb1 (kvm: symbol lookup error: kvm: undefined symbol: rbd_aio_discard)
