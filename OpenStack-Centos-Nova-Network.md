@@ -29,13 +29,15 @@
 
 *	修改源
 
+		sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Base.repo
+		
 		sed -i 's/#baseurl=http:\/\/mirror.centos.org/baseurl=http:\/\/mirrors.yun-idc.com/g' /etc/yum.repos.d/CentOS-Base.repo
 		
 		rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 		
 		rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
 		
-		yum install http://repos.fedorapeople.org/repos/openstack/openstack-havana/rdo-release-havana-7.noarch.rpm
+		yum install http://repos.fedorapeople.org/repos/openstack/openstack-havana/rdo-release-havana-8.noarch.rpm
 		
 		yum update
 		
