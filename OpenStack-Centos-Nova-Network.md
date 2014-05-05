@@ -63,6 +63,10 @@
 		net.ipv4.ip_forward = 1
 		
 		sysctl -p 
+*	重启系统
+
+		reboot
+
 *	安装NTP
 
 		yum -y install ntp
@@ -464,6 +468,10 @@
 		iptables -I INPUT -p tcp --dport 80 -j ACCEPT
 		iptables -I INPUT -p tcp -m multiport --dports 5900:6000 -j ACCEPT
 		iptables -I INPUT -p tcp --dport 6080 -j ACCEPT
+		iptables -I INPUT -p tcp --dport 3306 -j ACCEPT
+		iptables -I INPUT -p tcp --dport 5000 -j ACCEPT
+		iptables -I INPUT -p tcp --dport 35357 -j ACCEPT
+		iptables -I INPUT -p tcp --dport 5672 -j ACCEPT
 		service iptables save
 
 
@@ -523,6 +531,10 @@
 		net.ipv4.ip_forward = 1
 		
 		sysctl -p 
+*	重启系统
+
+		reboot
+
 *	安装ntpdate
 
 		yum -y install ntpdate
@@ -530,7 +542,9 @@
 		ntpdate 192.168.0.100
 *	设置cron
 
+		crontab -e		
 		*/5 * * * * ntpdate 192.168.0.100 >> /var/log/ntpdate.log
+		service crond restart
 *	创建环境变量文件
 
 		vim ~/creds
@@ -542,6 +556,7 @@
 		export SERVICE_ENDPOINT=http://192.168.0.100:35357/v2.0
 
 		source ~/creds
+
 	
 #####安装libvirt
 *	安装
@@ -649,7 +664,7 @@
 		service openstack-nova-network restart
 *	查看服务
 
-		nova service-list
+		nova-manage service list
 
 
 
