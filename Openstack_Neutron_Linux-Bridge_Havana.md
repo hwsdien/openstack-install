@@ -417,7 +417,7 @@
 		firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver
 		
 		neutron_use_dhcp=true
-		network_manager=nova.network.neutron.manager.QuantumManager
+		network_manager=nova.network.neutron.manager.NeutronManager
 
 		#Metadata
 		service_neutron_metadata_proxy = True
