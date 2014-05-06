@@ -25,22 +25,36 @@
    	
 
 #####安装环境设置
-	1、安装OpenSSH-Server
+*	安装OpenSSH-Server
+
 		apt-get install openssh-server
-	2、增加Havana的源
+*	增加Havana的源
+
 		apt-get install python-software-properties
 		add-apt-repository cloud-archive:havana
-	3、修改默认的源
+*	修改默认的源
+
 		sed -i 's/cn.archive.ubuntu.com/mirrors.yun-idc.com/g' /etc/apt/sources.list
-	4、更新源
+*	更新源
+
 		apt-get update
-	7、更新已安装的包和系统
+*	安装内核
+
+		apt-get install linux-headers-3.2.0-58-generic
+    	apt-get install linux-image-3.2.0-58-generic
+*	修改grub默认启动的内核
+
+		sed -i 's/default="0/default="2/g' /boot/grub/grub.cfg
+*	更新已安装的包和系统
+
 		apt-get upgrade
-		apt-get dist-upgrade(视情况)
-	8、更改计算机名称
+
+*	更改计算机名称
+
 		vim /etc/hostname
 		vim /etc/hosts
-	9、重启系统
+*	重启系统
+
 		reboot
 		
 
