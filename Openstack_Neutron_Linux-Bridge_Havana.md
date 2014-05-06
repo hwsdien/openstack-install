@@ -479,6 +479,9 @@
 *	同步数据
 
 		nova-manage db sync
+*	重启相关的服务
+
+		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i restart; cd /root/;done
 *	服务显示
 
 		nova-manage service list
@@ -500,7 +503,7 @@
 		[filter:authtoken]
 		paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
 		service_protocol = http
-		service_host = 172.16.33.128
+		service_host = 127.0.0.1
 		service_port = 5000
 		auth_host = 127.0.0.1
 		auth_port = 35357
