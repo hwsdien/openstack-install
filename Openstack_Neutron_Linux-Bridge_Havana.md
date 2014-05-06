@@ -234,14 +234,14 @@
 		admin_password = openstacktest
 *	更新 /etc/neutron/plugins/linuxbridge/linuxbridge_conf.ini
 
-		vim  /etc/neutron/plugins/linuxbridge/linuxbridge_conf.ini
-		[DATABASE]
+		vim /etc/neutron/plugins/linuxbridge/linuxbridge_conf.ini
+		[database]
 		connection=mysql://neutronUser:neutronPass@127.0.0.1/neutron
 		
-		[LINUX_BRIDGE]
+		[linux_bridge]
 		physical_interface_mappings = physnet1:eth1
 		
-		[VLANS]
+		[vlans]
 		tenant_network_type = vlan
 		network_vlan_ranges = physnet1:1000:2999
 		
@@ -281,7 +281,7 @@
 		[quotas]
 		quota_driver=neutron.db.quota_db.DbQuotaDriver
 
-		[DATABASE]
+		[database]
 		connection = mysql://neutronUser:neutronPass@127.0.0.1/neutron
 *	更新 /etc/neutron/dhcp_agent.ini
 
@@ -336,6 +336,7 @@
 		apt-get install -y kvm libvirt-bin pm-utils
 *	更新 /etc/libvirt/qemu.conf
 
+		vim /etc/libvirt/qemu.conf
 		cgroup_device_acl = [
 		"/dev/null", "/dev/full", "/dev/zero",
 		"/dev/random", "/dev/urandom",
@@ -348,14 +349,17 @@
 		virsh net-undefine default	
 *	更新 /etc/libvirt/libvirtd.conf
 
+		vim /etc/libvirt/libvirtd.conf
 		listen_tls = 0
 		listen_tcp = 1
 		auth_tcp = "none"
 *	更新 /etc/init/libvirt-bin.conf
-
+		
+		vim /etc/init/libvirt-bin.conf
 		env libvirtd_opts="-d -l"
 *	更新 /etc/default/libvirt-bin
-
+		
+		vim /etc/default/libvirt-bin
 		libvirtd_opts="-d -l"
 *	重启服务
 
