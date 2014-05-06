@@ -4,9 +4,35 @@
 	nate.yu <nate_yhz@outlook.com>
 	
 #####Requirements
-	Ubuntu 12.04 LTS 	
+	Ubuntu 12.04 LTS 
+		
 #####说明
 	安装流程参考了网上信息，个人记录，请勿使用，发生一切事情，后果自负！！！
+	
+#####安装内容
+*	[安装环境设置](#安装环境设置)
+
+*	[安装基础软件](#安装基础软件)
+
+*	[安装MySQL](#安装mysql)
+
+*	[安装RabbitMQ](#安装rabbitmq)
+
+*	[安装Keystone](#安装keystone)
+
+*	[安装Glance](#安装glance)
+
+*	[安装Nova](#安装nova)
+
+*	[安装Cinder](#安装cinder)
+
+*	[安装Horizon](#安装horizon)
+
+*	[相关错误](#相关错误)
+
+
+
+
 	
 #####安装环境设置
 *	安装OpenSSH-Server
@@ -326,7 +352,7 @@
 		[filter:authtoken]
 		paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
 		service_protocol = http
-		service_host = 172.16.33.128
+		service_host = 127.0.0.1
 		service_port = 5000
 		auth_host = 127.0.0.1
 		auth_port = 35357
@@ -422,6 +448,62 @@
 		keystone 删除 neutron 相关的 user & service
 		keystone catalog 查下有没有
 		浏览器清空cookies重新登录
+
+
+####增加计算结点
+
+#####安装环境设置
+*	安装OpenSSH-Server
+
+		apt-get -y install openssh-server
+*	增加Havana的源
+
+		apt-get install python-software-properties
+		add-apt-repository cloud-archive:havana
+*	修改默认的源
+
+		sed -i 's/cn.archive.ubuntu.com/mirrors.yun-idc.com/g' /etc/apt/sources.list
+*	更新源
+
+		apt-get update
+		
+*	更新已安装的包和系统
+
+		apt-get upgrade
+		apt-get dist-upgrade
+*	更改计算机名称
+
+		vim /etc/hostname
+		vim /etc/hosts
+*	重启系统
+
+		reboot
+
+#####安装基础软件
+*	设置IP转发
+
+		sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+		sysctl -p
+		
+*	更改limits
+
+		vim /etc/security/limits.conf
+		*               soft    nofile           10240 
+		*               hard    nofile           10240
+		
+*	检测kvm
+
+		apt-get -y install cpu-checker
+		kvm-ok
+		modprobe kvm_intel	
+*	安装qemu
+
+		apt-get -y install qemu-utils	
+*	安装网桥工具
+
+		apt-get -y install bridge-utils
+
+
 		
 	
 	
