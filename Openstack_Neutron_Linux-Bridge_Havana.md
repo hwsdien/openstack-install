@@ -123,7 +123,7 @@
 #####安装Keystone
 *	安装Keystone
 
-		apt-get install -y keystone
+		apt-get install keystone
 *	修改Keystone的配置文件
 
 		vim /etc/keystone/keystone.conf
@@ -219,6 +219,7 @@
 		cd /etc/init.d/; for i in $( ls neutron-* ); do sudo service $i status; cd; done
 *	更新 /etc/neutron/neutron.conf 
 
+		vim /etc/neutron/neutron.conf
 		core_plugin = neutron.plugins.linuxbridge.lb_neutron_plugin.LinuxBridgePluginV2
 *	更新 /etc/neutron/api-paste.ini
 
@@ -233,6 +234,7 @@
 		admin_password = openstacktest
 *	更新 /etc/neutron/plugins/linuxbridge/linuxbridge_conf.ini
 
+		vim  /etc/neutron/plugins/linuxbridge/linuxbridge_conf.ini
 		[DATABASE]
 		connection=mysql://neutronUser:neutronPass@127.0.0.1/neutron
 		
@@ -245,16 +247,19 @@
 		
 *	更新 /etc/neutron/l3_agent.ini
 
+		vim /etc/neutron/l3_agent.ini
 		interface_driver = neutron.agent.linux.interface.BridgeInterfaceDriver
 		use_namespaces = False
 		router_id = 1
 		external_network_bridge =
 *	更新 /etc/default/neutron-server
 
+		vim /etc/default/neutron-server
 		NEUTRON_PLUGIN_CONFIG="/etc/neutron/plugins/linuxbridge/linuxbridge_conf.ini"
 
 *	更新 /etc/default/dnsmasq
 
+		vim /etc/default/dnsmasq
 		ENABLED=0
 
 *	更新 /etc/neutron/neutron.conf
@@ -280,6 +285,7 @@
 		connection = mysql://neutronUser:neutronPass@127.0.0.1/neutron
 *	更新 /etc/neutron/dhcp_agent.ini
 
+		vim /etc/neutron/dhcp_agent.ini
 		interface_driver = neutron.agent.linux.interface.BridgeInterfaceDriver
 		use_namespaces = False
 *	更新 /etc/neutron/metadata_agent.ini
