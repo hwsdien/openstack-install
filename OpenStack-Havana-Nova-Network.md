@@ -330,6 +330,27 @@
 *	重启相关的服务
 
 		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i restart; cd /root/;done
+*	删除virbr0
+
+		ifconfig virbr0 down
+		brctl delbr virbr0
+		virsh net-destroy default
+		virsh net-undefine default
+		
+*	创建内部网络
+
+		nova network-create vmnet --fixed-range-v4=10.0.0.0/24 --bridge-interface=br100 --multi-host=T
+*	创建外部网络
+
+		nova-manage floating create --ip_range=10.211.55.0/24  --pool public_ip
+*	查看网络
+
+		nova network-list
+		nova-manage network list
+*	设置防火墙开放22端口和icmp协议
+
+		nova secgroup-add-rule default tcp 22 22 0.0.0.0/0
+		nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
 
 *	服务显示
 
@@ -415,27 +436,7 @@
 
 		service apache2 restart
 		service memcached restart
-		
-*	删除virbr0
 
-		ifconfig virbr0 down
-		brctl delbr virbr0
-		virsh net-destroy default
-		virsh net-undefine default
-*	创建内部网络
-
-		nova network-create vmnet --fixed-range-v4=10.0.0.0/24 --bridge-interface=br100 --multi-host=T
-*	创建外部网络
-
-		nova-manage floating create --ip_range=10.211.55.0/24  --pool public_ip
-*	查看网络
-
-		nova network-list
-		nova-manage network list
-*	设置防火墙开放22端口和icmp协议
-
-		nova secgroup-add-rule default tcp 22 22 0.0.0.0/0
-		nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
 
 
 		
@@ -613,6 +614,13 @@
 *	同步数据
 
 		nova-manage db sync
+*	删除virbr0
+
+		ifconfig virbr0 down
+		brctl delbr virbr0
+		virsh net-destroy default
+		virsh net-undefine default
+
 *	重启相关的服务
 
 		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i restart; cd /root/;done
