@@ -8,4 +8,4 @@
 
 *	[OpenStack Havana Neutron Linux-Bridge on Ubuntu 12.04 LTS](https://github.com/hwsdien/openstack-install/blob/master/Openstack_Neutron_Linux-Bridge_Havana.md)
 
-*	[OpenStack Icehouse Nova-Network on Ubuntu 12.04 LTS](https://github.com/hwsdien/openstack-install/blob/master/OpenStack_IceHouse-Nova-Network.md)
+*	[OpenStack Icehouse Nova-Network on Ubuntu 14.04 LTS](https://github.com/hwsdien/openstack-install/blob/master/OpenStack_IceHouse-Nova-Network.md)

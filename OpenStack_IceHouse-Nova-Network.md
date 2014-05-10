@@ -1,4 +1,4 @@
-####Openstack Icehouse nova-network on Ubuntu 14.04 Install Step
+####Openstack Icehouse nova-network on Ubuntu 14.04 
 
 #####Author
 	nate.yu <nate_yhz@outlook.com>
@@ -30,15 +30,26 @@
 
 *	[安装Horizon](#安装horizon)
 
+*	[相关错误及解决办法](#相关错误及解决办法)
+
+
 	
 #####安装环境设置
 *	安装OpenSSH-Server
 
 		apt-get -y install openssh-server
+*	设置root用户可以登录
+
+		vim /etc/ssh/sshd_config
+		PermitRootLogin yes
+		
+		service ssh restart
 
 *	修改默认的源
 
 		sed -i 's/cn.archive.ubuntu.com/mirrors.yun-idc.com/g' /etc/apt/sources.list
+		sed -i 's/us.archive.ubuntu.com/mirrors.yun-idc.com/g' /etc/apt/sources.list  
+		
 *	更新源
 
 		apt-get update
@@ -51,11 +62,7 @@
 
 		vim /etc/hostname
 		vim /etc/hosts
-*	重启系统
 
-		reboot
-		
-#####安装基础软件
 *	设置IP转发
 
 		sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
@@ -66,6 +73,12 @@
 		vim /etc/security/limits.conf
 		*               soft    nofile           10240 
 		*               hard    nofile           10240
+*	重启系统
+
+		reboot
+
+		
+#####安装基础软件
 		
 *	检测kvm
 
@@ -119,7 +132,6 @@
     	flush privileges;
     	quit;
 *	重启
-
 
     	service mysql restart
 
@@ -245,7 +257,8 @@
 #####安装Nova
 *	安装
 
-		apt-get install -y nova-api nova-cert nova-common nova-conductor nova-consoleauth nova-novncproxy nova-scheduler python-nova python-novaclient novnc nova-compute nova-compute-kvm
+		apt-get install nova-novncproxy novnc nova-api nova-ajax-console-proxy nova-cert nova-conductor nova-consoleauth nova-doc nova-scheduler nova-compute-kvm python-guestfs nova-common nova-network
+
 *	更新 /etc/nova/api-paste.ini
 		
 		vim /etc/nova/api-paste.ini
@@ -339,7 +352,7 @@
     	nova-manage db sync
 *	重启相关的服务
 
-		cd /etc/init.d/; for i in $( ls nova-* ); do sudo service $i restart; cd /root/;done
+		cd /usr/bin/; for i in $( ls nova-* ); do sudo service $i restart; cd /root/;done
     	
 *	删除virbr0
 
@@ -429,16 +442,16 @@
 		vgcreate cinder-volumes /dev/loop2
 *	重启相关服务
 
-		cd /etc/init.d/; for i in $( ls cinder-* ); do sudo service $i restart; cd /root/; done
+		cd /usr/bin/; for i in $( ls cinder-* ); do sudo service $i restart; cd /root/; done
 *	验证服务是否在运行
 
-		cd /etc/init.d/; for i in $( ls cinder-* ); do sudo service $i status; cd /root/; done
+		cd /usr/bin/; for i in $( ls cinder-* ); do sudo service $i status; cd /root/; done
 		
 #####安装Horizon
 
 *	安装Dashboard
 
-		apt-get install memcached libapache2-mod-wsgi openstack-dashboard
+		apt-get install apache2 memcached libapache2-mod-wsgi openstack-dashboard
 *	删除ubuntu主题
 
 		apt-get remove --purge openstack-dashboard-ubuntu-theme
@@ -446,6 +459,29 @@
 
 		service apache2 restart
 		service memcached restart
+*	设置允许访问
+
+		vim /etc/openstack-dashboard/local_settings.py
+		ALLOWED_HOSTS = ['localhost', 'my-desktop', '*']
+*	配置apache2
+
+		cd /etc/apache2/conf-enabled
+		ln -s ../conf-available/openstack-dashboard.conf ./openstack-dashboard.conf
+		a2enmod wsgi
+		service apache2 restart
+
+		
+#####相关错误及解决办法
+*	utf8问题
+
+		CRITICAL glance [-] ValueError: Tables "migrate_version" have non utf8 collation, please make sure all tables are CHARSET=utf8
+		
+		解决方法:
+		mysql -u root -p glance
+		alter table migrate_version convert to character set utf8 collate utf8_unicode_ci;
+		flush privileges;
+		quit;
+
 
 				
 		
