@@ -448,6 +448,90 @@
 *	查看运行
 
 		nova list
+		
+#####安装Cinder
+*	安装
+
+		yum -y install openstack-cinder scsi-target-utils
+*	创建数据库
+
+		openstack-db --init --service cinder
+*	修改数据库配置
+
+		openstack-config --set /etc/cinder/cinder.conf database connection mysql://cinder:cinder@localhost/cinder
+*	创建cinder用户
+
+		keystone user-create --name=cinder --pass=123123 --email=nate_yhz@outlook.com
+*	绑定用户
+
+		keystone user-role-add --user=cinder --tenant=service --role=admin
+*	创建服务
+
+		keystone service-create --name=cinder --type=volume --description="OpenStack Block Storage"
+		
+		keystone service-create --name=cinderv2 --type=volumev2 --description="OpenStack Block Storage v2"
+*	创建endpoint
+
+		外部IP
+		export ip=192.168.0.100
+		
+		keystone endpoint-create --service-id=$(keystone service-list | awk '/ volume / {print $2}') --publicurl=http://$ip:8776/v1/%\(tenant_id\)s --internalurl=http://$ip:8776/v1/%\(tenant_id\)s --adminurl=http://$ip:8776/v1/%\(tenant_id\)s
+		
+		keystone endpoint-create --service-id=$(keystone service-list | awk '/ volumev2 / {print $2}') --publicurl=http://$ip:8776/v2/%\(tenant_id\)s --internalurl=http://$ip:8776/v2/%\(tenant_id\)s --adminurl=http://$ip:8776/v2/%\(tenant_id\)s
+		
+*	更新 /etc/cinder/cinder.conf
+
+		openstack-config --set /etc/cinder/cinder.conf DEFAULT auth_strategy keystone
+		openstack-config --set /etc/cinder/cinder.conf keystone_authtoken auth_uri http://127.0.0.1:5000
+		openstack-config --set /etc/cinder/cinder.conf keystone_authtoken auth_host 127.0.0.1
+		openstack-config --set /etc/cinder/cinder.conf keystone_authtoken auth_protocol http
+		openstack-config --set /etc/cinder/cinder.conf keystone_authtoken auth_port 35357
+		openstack-config --set /etc/cinder/cinder.conf keystone_authtoken admin_user cinder
+		openstack-config --set /etc/cinder/cinder.conf keystone_authtoken admin_tenant_name service
+		openstack-config --set /etc/cinder/cinder.conf keystone_authtoken admin_password 123123
+		
+		openstack-config --set /etc/cinder/cinder.conf DEFAULT rpc_backend rabbit
+		openstack-config --set /etc/glance/cinder.conf DEFAULT rabbit_password nate123
+		
+		openstack-config --set /etc/cinder/cinder.conf DEFAULT glance_host 127.0.0.1
+*	更新 /etc/tgt/targets.conf
+		
+		include /etc/cinder/volumes/*
+*	启动
+
+		service openstack-cinder-api start
+		service openstack-cinder-scheduler start
+		service openstack-cinder-volume start
+		service tgtd start
+*	设置开机启动
+
+		chkconfig openstack-cinder-api on
+		chkconfig openstack-cinder-scheduler on
+		chkconfig openstack-cinder-volume on
+		chkconfig tgtd on
+*	创建硬盘
+
+		dd if=/dev/zero of=cinder-volumes bs=1 count=0 seek=2G
+		losetup /dev/loop2 cinder-volumes
+		fdisk /dev/loop2
+		#Type in the followings:
+		n
+		p
+		1
+		ENTER
+		ENTER
+		t
+		8e
+		w
+
+		pvcreate /dev/loop2
+		vgcreate cinder-volumes /dev/loop2
+*	重启
+
+		service openstack-cinder-api restart
+		service openstack-cinder-scheduler restart
+		service openstack-cinder-volume restart
+		service tgtd restart
 
 
 #####安装Horizon
@@ -506,7 +590,7 @@
 		
 		rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
 		
-		yum install http://repos.fedorapeople.org/repos/openstack/openstack-havana/rdo-release-havana-8.noarch.rpm
+		yum install http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/rdo-release-icehouse-3.noarch.rpm
 		
 		yum update
 		
