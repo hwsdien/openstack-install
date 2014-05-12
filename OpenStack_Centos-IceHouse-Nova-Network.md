@@ -18,6 +18,7 @@
 *	[安装Keystone](#安装keystone)
 *	[安装Glance](#安装glance)
 *	[安装Nova](#安装nova)
+*	[安装Cinder](#安装cinder)
 *	[安装Horizon](#安装horizon)
 *	[相关错误及解决方法](#相关错误及解决方法)
 
