@@ -454,10 +454,13 @@
 *	安装
 
 		yum -y install openstack-cinder scsi-target-utils
+*	修改数据库连接
+
+		openstack-config --set /etc/cinder/cinder.conf database connection mysql://cinder:cinder@localhost/cinder
 *	创建数据库
 
 		openstack-db --init --service cinder
-*	修改数据库配置
+*	修改数据库连接
 
 		openstack-config --set /etc/cinder/cinder.conf database connection mysql://cinder:cinder@localhost/cinder
 *	创建cinder用户
@@ -492,7 +495,7 @@
 		openstack-config --set /etc/cinder/cinder.conf keystone_authtoken admin_password 123123
 		
 		openstack-config --set /etc/cinder/cinder.conf DEFAULT rpc_backend rabbit
-		openstack-config --set /etc/glance/cinder.conf DEFAULT rabbit_password nate123
+		openstack-config --set /etc/cinder/cinder.conf DEFAULT rabbit_password nate123
 		
 		openstack-config --set /etc/cinder/cinder.conf DEFAULT glance_host 127.0.0.1
 *	更新 /etc/tgt/targets.conf
