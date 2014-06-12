@@ -1,7 +1,7 @@
 ####OpenStack Icehouse Nova-Network on Centos 6.5安装记录
 
 #####Author
-	nate.yu <nate_yhz@outlook.com>
+	nate.yu <nate.yhz at gmail.com>
 	
 #####Requirements
 	CentOS release 6.5 (Final)
@@ -29,10 +29,6 @@
 #####安装基础软件
 
 *	修改源
-
-		sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Base.repo
-		
-		sed -i 's/#baseurl=http:\/\/mirror.centos.org/baseurl=http:\/\/mirrors.yun-idc.com/g' /etc/yum.repos.d/CentOS-Base.repo
 		
 		rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 		
@@ -72,16 +68,20 @@
 
 		yum -y install ntp
 		
-		vim /etc/ntp.conf
-		driftfile /var/lib/ntp/drift
-		restrict default ignore
-		restrict 127.0.0.1 
-		restrict 192.168.10.0 mask 255.255.255.0 nomodify notrap
-		server ntp.api.bz
-		server  127.127.1.0     # local clock
-		fudge   127.127.1.0 stratum 10
-		keys /etc/ntp/keys
+		driftfile /var/lib/ntp/ntp.drift
+		statistics loopstats peerstats clockstats
+		filegen loopstats file loopstats type day enable
+		filegen peerstats file peerstats type day enable
+		filegen clockstats file clockstats type day enable
+		server 202.120.2.101
+		restrict -4 default kod notrap nomodify nopeer noquery
+		restrict -6 default kod notrap nomodify nopeer noquery
+		restrict 127.0.0.1
+		restrict ::1
+		server 127.127.1.0
+		fudge 127.127.1.0 stratum 8	
 		
+			
 		service ntpd start
 		 
 		chkconfig ntpd on
@@ -330,6 +330,7 @@
 		rabbit_port = 5672
 		rabbit_password = nate123
 		libvirt_type = kvm
+		libvirt_inject_password = true
 		glance_api_servers = 192.168.0.100:9292
 
 		novncproxy_base_url = http://192.168.0.100:6080/vnc_auto.html
@@ -454,9 +455,7 @@
 *	安装
 
 		yum -y install openstack-cinder scsi-target-utils
-*	修改数据库连接
 
-		openstack-config --set /etc/cinder/cinder.conf database connection mysql://cinder:cinder@localhost/cinder
 *	创建数据库
 
 		openstack-db --init --service cinder
@@ -561,6 +560,7 @@
 		iptables -I INPUT -p tcp --dport 35357 -j ACCEPT
 		iptables -I INPUT -p tcp --dport 5672 -j ACCEPT
 		iptables -I INPUT -p tcp --dport 9292 -j ACCEPT
+		iptables -I INPUT -p udp -m udp --dport 123 -j ACCEPT 
 		service iptables save
 
 
@@ -690,6 +690,7 @@
 		rabbit_port = 5672
 		rabbit_password = nate123
 		libvirt_type = kvm
+		lbivrit_inject_password = true
 		glance_api_servers = 192.168.0.100:9292
 
 		novncproxy_base_url = http://192.168.0.100:6080/vnc_auto.html
